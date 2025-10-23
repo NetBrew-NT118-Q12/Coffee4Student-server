@@ -11,3 +11,9 @@ exports.findUserByEmail = (email, callback) => {
   const sql = "SELECT * FROM users WHERE email = ?";
   db.query(sql, [email], callback);
 };
+
+// 🔍 Tìm người dùng theo số điện thoại
+exports.findUserByPhone = (phone, callback) => {
+  const sql = "SELECT * FROM users WHERE phone = ?";
+  db.query(sql, [phone], callback);
+};
