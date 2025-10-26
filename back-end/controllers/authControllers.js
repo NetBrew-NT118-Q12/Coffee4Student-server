@@ -3,9 +3,9 @@ const User = require("../models/userModel");
 // 📩 Xử lý đăng ký
 exports.signup = (req, res) => {
   console.log("📩 Nhận dữ liệu từ Android:", req.body);    
-  const { email, phone, full_name, dob, password } = req.body;
+  const { email, phone, full_name, password } = req.body;
 
-  User.createUser(email, phone, full_name, dob, password, (err, result) => {
+  User.createUser(email, phone, full_name, password, (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ success: false, message: "Lỗi database" });
