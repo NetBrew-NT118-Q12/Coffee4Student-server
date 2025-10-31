@@ -58,7 +58,7 @@ exports.login = (req, res) => {
           email: user.email,
           phone: user.phone,
           dob: user.date_of_birth,
-          render: user.sex,
+          gender: user.gender,
           token: "" // bạn có thể thêm JWT nếu muốn
         }
       });
