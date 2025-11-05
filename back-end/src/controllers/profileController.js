@@ -1,6 +1,4 @@
 const User = require("../models/userModel");
-const path = require("path");
-const fs = require("fs");
 
 // ✅ Cập nhật thông tin người dùng
 exports.updateProfile = (req, res) => {
@@ -68,7 +66,8 @@ exports.uploadAvatar = async (req, res) => {
       return res.status(400).json({ success: false, message: "No file uploaded" });
     }
 
-    const avatarUrl = `${req.protocol}://${req.get("host")}/upload/users/${req.file.filename}`;
+    // ✅ URL thật sự trên S3
+    const avatarUrl = req.file.location;
 
     // ✅ Cập nhật vào DB qua model
     User.updateAvatar(userId, avatarUrl, (err, result) => {
