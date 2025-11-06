@@ -1,0 +1,46 @@
+# Tên của kịch bản
+name: Deploy to VPS
+
+# Kích hoạt: Chạy kịch bản này mỗi khi push lên nhánh 'dev'
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    # Chạy trên máy ảo Ubuntu mới nhất của GitHub
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Lấy code mới nhất (từ GitHub)
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Thực hiện SSH vào VPS và chạy lệnh
+      - name: Deploy to VPS
+        # Dùng một Action (công cụ) có sẵn
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          # Lấy các "Bí mật" bạn đã tạo
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ${{ secrets.VPS_SSH_USERNAME }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          port: 22 # Cổng SSH, 22 là mặc định
+
+          # 3. Kịch bản (script) để chạy trên VPS
+          script: |
+            # Di chuyển đến thư mục dự án
+            cd /home/vantai/projects/Coffee4Student-server
+
+            # Kéo code mới nhất từ nhánh 'dev'
+            git pull origin dev
+
+            # Di chuyển vào thư mục backend
+            cd back-end
+
+            # Cài đặt (nếu có gói mới)
+            npm install
+
+            # Khởi động lại app bằng PM2
+            pm2 restart server.js || pm2 start server.js --name "server.js"
