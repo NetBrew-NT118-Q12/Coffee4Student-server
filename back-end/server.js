@@ -4,10 +4,22 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const bodyParser = require("body-parser");
+
+// ========== KHỞI TẠO FIREBASE ADMIN ==========
+// Đảm bảo bạn đã có file "serviceAccountKey.json" trong thư mục (ví dụ: src/config)
+const admin = require("firebase-admin");
+const serviceAccount = require("./src/config/serviceAccountKey.json"); // 👈 Cập nhật đường dẫn này
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+// ============================================
+
+// Routes
 const authRoutes = require("./src/routes/authRoutes");
 const profileRoutes = require("./src/routes/profileRoutes");
-const categoryRoutes = require('./src/routes/categoryRoutes');
-const productRoutes = require('./src/routes/productRoutes');
+const categoryRoutes = require("./src/routes/categoryRoutes");
+const productRoutes = require("./src/routes/productRoutes");
 
 const app = express();
 app.use(cors());
@@ -18,8 +30,8 @@ app.use("/auth/", authRoutes);
 app.use("/profile", profileRoutes);
 app.use("/public", express.static(path.join(__dirname, "public")));
 app.use("/upload", express.static(path.join(__dirname, "upload")));
-app.use('/api/categories', categoryRoutes);
-app.use('/api/products', productRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/products", productRoutes);
 
 // Start server
 const PORT = 5000;
