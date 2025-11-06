@@ -1,7 +1,14 @@
 const db = require("../config/db");
 
 // Tạo user mới
-exports.createUser = (email, phone, full_name, password, image_url, callback) => {
+exports.createUser = (
+  email,
+  phone,
+  full_name,
+  password,
+  image_url,
+  callback
+) => {
   const sql = `
     INSERT INTO users (email, phone, full_name, password, image_url, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, NOW(), NOW())
@@ -29,7 +36,6 @@ exports.getUserById = (id, callback) => {
     callback(null, results[0]);
   });
 };
-
 
 // 📌 Cập nhật avatar cho user
 exports.updateAvatar = (userId, avatarUrl, callback) => {
