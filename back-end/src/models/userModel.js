@@ -1,11 +1,11 @@
-const db = require("../config/db");
+const db = require("../config/db"); // Đảm bảo đường dẫn này đúng
 
-// Tạo user mới
+// Tạo user mới (với mật khẩu đã băm)
 exports.createUser = (
   email,
   phone,
   full_name,
-  password,
+  hashedPassword, // Tên đã đổi
   image_url,
   callback
 ) => {
@@ -13,7 +13,8 @@ exports.createUser = (
     INSERT INTO users (email, phone, full_name, password, image_url, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, NOW(), NOW())
   `;
-  db.query(sql, [email, phone, full_name, password, image_url], callback);
+  // Lưu mật khẩu đã băm
+  db.query(sql, [email, phone, full_name, hashedPassword, image_url], callback);
 };
 
 // Tìm user theo email
@@ -67,4 +68,31 @@ exports.deleteUser = (id, callback) => {
     if (err) return callback(err);
     callback(null, result);
   });
+};
+
+// ============================================
+// CÁC HÀM MỚI CHO SOCIAL LOGIN
+// ============================================
+
+// 🔍 Tìm user theo Firebase UID
+exports.findUserByFirebaseUid = (uid, callback) => {
+  const sql = "SELECT * FROM users WHERE firebase_uid = ?";
+  db.query(sql, [uid], callback);
+};
+
+// 🔗 Gắn Firebase UID cho user đã có (qua email)
+// (Giả sử bạn đã chạy lệnh ALTER TABLE để thêm cột `firebase_uid`)
+exports.linkFirebaseUidToEmail = (email, uid, callback) => {
+  const sql =
+    "UPDATE users SET firebase_uid = ?, updated_at = NOW() WHERE email = ?";
+  db.query(sql, [uid, email], callback);
+};
+
+// 👤 Tạo user mới từ Social (không có SĐT, password là NULL)
+exports.createSocialUser = (uid, email, full_name, image_url, callback) => {
+  const sql = `
+    INSERT INTO users (firebase_uid, email, full_name, image_url, password, created_at, updated_at)
+    VALUES (?, ?, ?, ?, NULL, NOW(), NOW())
+  `;
+  db.query(sql, [uid, email, full_name, image_url], callback);
 };

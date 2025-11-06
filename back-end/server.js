@@ -4,6 +4,18 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const bodyParser = require("body-parser");
+
+// ========== KHỞI TẠO FIREBASE ADMIN ==========
+// Đảm bảo bạn đã có file "serviceAccountKey.json" trong thư mục (ví dụ: src/config)
+const admin = require("firebase-admin");
+const serviceAccount = require("./src/config/serviceAccountKey.json"); // 👈 Cập nhật đường dẫn này
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+// ============================================
+
+// Routes
 const authRoutes = require("./src/routes/authRoutes");
 const profileRoutes = require("./src/routes/profileRoutes");
 const categoryRoutes = require('./src/routes/categoryRoutes');
