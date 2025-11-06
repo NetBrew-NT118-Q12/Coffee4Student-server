@@ -28,19 +28,24 @@ jobs:
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           port: 22 # Cổng SSH, 22 là mặc định
 
-          # 3. Kịch bản (script) để chạy trên VPS
           script: |
+
+            # Nạp (source) NVM để có thể dùng npm, node, pm2
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
             # Di chuyển đến thư mục dự án
             cd /home/vantai/projects/Coffee4Student-server
 
-            # Kéo code mới nhất từ nhánh 'dev'
-            git pull origin dev
+            # Kéo code mới nhất (sửa lại để dùng 'reset' cho an toàn)
+            git fetch origin
+            git reset --hard origin/dev
 
             # Di chuyển vào thư mục backend
             cd back-end
 
             # Cài đặt (nếu có gói mới)
             npm install
-
-            # Khởi động lại app bằng PM2
-            pm2 restart server.js || pm2 start server.js --name "server.js"
+            # Khởi động lại server với pm2
+            pm2 restart server
