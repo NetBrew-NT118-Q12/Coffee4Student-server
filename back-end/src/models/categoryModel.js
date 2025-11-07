@@ -2,7 +2,7 @@ const db = require("../config/db"); // nếu bạn đang dùng MySQL connection 
 
 const Category = {
   getAll: (callback) => {
-    const sql = "SELECT category_id, name, image_url FROM categories";
+    const sql = 'SELECT category_id, name, image_url FROM categories';
     db.query(sql, callback);
   },
 };
