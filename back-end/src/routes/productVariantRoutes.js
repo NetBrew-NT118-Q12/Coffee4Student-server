@@ -1,8 +1,9 @@
 const express = require("express");
-const { fetchAllProductVariants } = require("../controllers/productVariantController");
+const { fetchAllProductVariants, getProductVariantsByProductId } = require("../controllers/productVariantController");
 
 const router = express.Router();
 
 router.get("/", fetchAllProductVariants);
+router.get("/:productId", getProductVariantsByProductId);
 
 module.exports = router;
