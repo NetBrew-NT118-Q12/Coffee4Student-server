@@ -21,6 +21,9 @@ const profileRoutes = require("./src/routes/profileRoutes");
 const categoryRoutes = require('./src/routes/categoryRoutes');
 const productRoutes = require('./src/routes/productRoutes');
 const productVariantRoutes = require('./src/routes/productVariantRoutes');
+const orderRoutes = require('./src/routes/orderRoutes');
+const paymentMethodRoutes = require("./src/routes/paymentMethodRoutes");
+const paymentRoutes = require("./src/routes/paymentRoutes");
 
 const app = express();
 app.use(cors());
@@ -32,6 +35,9 @@ app.use("/profile", profileRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/product-variants', productVariantRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/payment-methods", paymentMethodRoutes);
+app.use("/payments", paymentRoutes);
 
 // Start server
 const PORT = 5000;
