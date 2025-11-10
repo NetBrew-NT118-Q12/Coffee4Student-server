@@ -5,7 +5,7 @@ import Routers from "./router/Routers";
 const App = () => {
   return (
     <>
-      <BrowserRouter>
+      <BrowserRouter  basename="/admin">
         <ScrollToTop />
         <Routers />
       </BrowserRouter>
