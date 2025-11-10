@@ -1,4 +1,4 @@
-// models/productVariantModel.js
+
 const db = require('../config/db');
 
 exports.getAllProductVariants = (callback) => {
