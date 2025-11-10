@@ -1,14 +1,64 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PageMeta from "../components/common/PageMeta";
 import { PlusIcon, MoreDotIcon } from "../icons";
 import { Dropdown } from "../components/ui/dropdown/Dropdown";
 import { DropdownItem } from "../components/ui/dropdown/DropdownItem";
-import { productsData, categories } from "../assets/data/products";
+import axios from "../api/axios";
+import type { Product } from "../types/product";
 
 const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const [currentPage, _setCurrentPage] = useState(1);
+
+  // fetched data states
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>(["Tất cả"]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function fetchData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const [prodRes, catRes] = await Promise.all([
+          axios.get("/api/products", { signal: controller.signal }),
+          axios
+            .get("/api/categories", { signal: controller.signal })
+            .catch(() => null),
+        ]);
+
+        if (prodRes && prodRes.status >= 200 && prodRes.status < 300) {
+          setProducts(prodRes.data || []);
+        } else {
+          throw new Error("Lấy danh sách sản phẩm thất bại");
+        }
+
+        if (catRes && catRes.status >= 200 && catRes.status < 300) {
+          const catData = catRes.data;
+          const names = Array.isArray(catData)
+            ? catData.map((c: any) =>
+                typeof c === "string" ? c : c.name || c.title || ""
+              )
+            : [];
+          const uniq = Array.from(new Set(names.filter(Boolean)));
+          setCategories(["Tất cả", ...uniq]);
+        }
+      } catch (err: any) {
+        if (err?.name !== "CanceledError" && err?.name !== "AbortError") {
+          setError(err?.message || "Lỗi khi tải dữ liệu");
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+    return () => controller.abort();
+  }, []);
 
   function toggleDropdown(productId: string) {
     setOpenDropdownId(openDropdownId === productId ? null : productId);
@@ -20,8 +70,8 @@ const Products = () => {
 
   const filteredProducts =
     selectedCategory === "Tất cả"
-      ? productsData
-      : productsData.filter((p) => p.category === selectedCategory);
+      ? products
+      : products.filter((p) => p.category === selectedCategory);
 
   return (
     <>
@@ -64,6 +114,10 @@ const Products = () => {
             </button>
           ))}
         </div>
+
+        {/* Loading / Error */}
+        {loading && <div className="text-center py-6">Đang tải...</div>}
+        {error && <div className="text-center py-6 text-red-500">{error}</div>}
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-6">
