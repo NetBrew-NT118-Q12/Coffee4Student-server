@@ -87,7 +87,7 @@ export default function NotificationDropdown() {
                 <img
                   width={40}
                   height={40}
-                  src="/images/user/user-02.jpg"
+                  src={`${import.meta.env.BASE_URL}images/user/user-02.jpg`}
                   alt="User"
                   className="w-full overflow-hidden rounded-full"
                 />
@@ -123,7 +123,7 @@ export default function NotificationDropdown() {
                 <img
                   width={40}
                   height={40}
-                  src="/images/user/user-03.jpg"
+                  src={`${import.meta.env.BASE_URL}images/user/user-03.jpg`}
                   alt="User"
                   className="w-full overflow-hidden rounded-full"
                 />
@@ -159,7 +159,7 @@ export default function NotificationDropdown() {
                 <img
                   width={40}
                   height={40}
-                  src="/images/user/user-04.jpg"
+                  src={`${import.meta.env.BASE_URL}images/user/user-04.jpg`}
                   alt="User"
                   className="w-full overflow-hidden rounded-full"
                 />
