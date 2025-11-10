@@ -1,29 +1,40 @@
 export interface Product {
-  id: string;
+  product_id: number;
+  category_id: number;
   name: string;
-  price: number;
-  category: string;
   description?: string;
-  image?: string;
-  stock: number;
-  createdAt?: string;
-  updatedAt?: string;
+  old_price?: number;
+  price: number;
+  is_active: boolean;
+  image_url?: string;
+  is_new?: boolean;
 }
 
 export interface CreateProductDTO {
+  category_id: number;
   name: string;
-  price: number;
-  category: string;
   description?: string;
-  image?: string;
-  stock: number;
+  old_price?: number;
+  price: number;
+  is_active?: boolean;
+  image_url?: string;
+  is_new?: boolean;
 }
 
-export interface UpdateProductDTO extends Partial<CreateProductDTO> {}
+export interface UpdateProductDTO {
+  category_id?: number;
+  name?: string;
+  description?: string;
+  old_price?: number;
+  price?: number;
+  is_active?: boolean;
+  image_url?: string;
+  is_new?: boolean;
+}
 
 export interface ProductsResponse {
-  data: Product[];
+  products: Product[];
   total: number;
-  page?: number;
-  limit?: number;
+  page: number;
+  limit: number;
 }

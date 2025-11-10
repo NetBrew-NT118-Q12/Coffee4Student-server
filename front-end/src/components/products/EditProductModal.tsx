@@ -1,18 +1,25 @@
 import { useForm, Controller } from "react-hook-form";
-import { useState } from "react";
-import { useCreateProduct } from "../../hook/useProducts";
+import { useState, useEffect } from "react";
+import { useUpdateProduct } from "../../hook/useProducts";
 import { useCategories } from "../../hook/useCategories";
-import type { CreateProductDTO } from "../../types/product";
+import type { Product, UpdateProductDTO } from "../../types/product";
 
-interface AddProductModalProps {
+interface EditProductModalProps {
   isOpen: boolean;
   onClose: () => void;
+  product: Product;
 }
 
-export const AddProductModal = ({ isOpen, onClose }: AddProductModalProps) => {
+export const EditProductModal = ({
+  isOpen,
+  onClose,
+  product,
+}: EditProductModalProps) => {
   const { data: categories = [] } = useCategories();
-  const createProductMutation = useCreateProduct();
-  const [imagePreview, setImagePreview] = useState<string>("");
+  const updateProductMutation = useUpdateProduct();
+  const [imagePreview, setImagePreview] = useState<string>(
+    product.image_url || ""
+  );
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const {
@@ -21,19 +28,54 @@ export const AddProductModal = ({ isOpen, onClose }: AddProductModalProps) => {
     formState: { errors },
     reset,
     setValue,
-    control, // Add control
-  } = useForm<CreateProductDTO>({
+    control,
+  } = useForm<UpdateProductDTO>({
     defaultValues: {
-      category_id: 0,
-      name: "",
-      description: "",
-      price: 0,
-      old_price: undefined,
-      is_active: true,
-      image_url: "",
-      is_new: true,
+      category_id: product.category_id,
+      name: product.name,
+      description: product.description || "",
+      price: product.price,
+      old_price: product.old_price || undefined,
+      is_active: product.is_active,
+      image_url: product.image_url || "",
+      is_new: product.is_new,
     },
   });
+
+  // Format number with thousand separators for display
+  const formatNumber = (value: number | string): string => {
+    if (!value && value !== 0) return "";
+    const numValue =
+      typeof value === "string" ? parseFloat(value.replace(/\./g, "")) : value;
+    if (isNaN(numValue)) return "";
+    return numValue.toLocaleString("vi-VN");
+  };
+
+  // Parse formatted string back to number
+  const parseNumber = (value: string): number => {
+    if (!value) return 0;
+    const cleaned = value.replace(/\./g, "");
+    const parsed = parseFloat(cleaned);
+    return isNaN(parsed) ? 0 : parsed;
+  };
+
+  // Update form when product changes
+  useEffect(() => {
+    if (product) {
+      reset({
+        category_id: product.category_id,
+        name: product.name,
+        description: product.description || "",
+        price: product.price,
+        old_price: product.old_price || undefined,
+        is_active: product.is_active,
+        image_url: product.image_url || "",
+        is_new: product.is_new,
+      });
+      setImagePreview(product.image_url || "");
+      setImageFile(null);
+    }
+  }, [product, reset]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -55,34 +97,23 @@ export const AddProductModal = ({ isOpen, onClose }: AddProductModalProps) => {
     setValue("image_url", "");
   };
 
-  const onSubmit = async (data: CreateProductDTO) => {
+  const onSubmit = async (data: UpdateProductDTO) => {
     try {
-      // TODO: Upload image to server/cloud storage first
-      // For now, using base64 or image URL directly
-      await createProductMutation.mutateAsync(data);
-      reset();
-      setImagePreview("");
-      setImageFile(null);
+      await updateProductMutation.mutateAsync({
+        id: product.product_id,
+        data,
+      });
       onClose();
     } catch (error) {
-      console.error("Error creating product:", error);
+      console.error("Error updating product:", error);
     }
   };
 
   const handleClose = () => {
     reset();
-    setImagePreview("");
+    setImagePreview(product.image_url || "");
     setImageFile(null);
     onClose();
-  };
-
-  // Format number with thousand separators for display
-  const formatNumber = (value: number | string | undefined): string => {
-    if (!value && value !== 0) return "";
-    const numValue =
-      typeof value === "string" ? parseFloat(value.replace(/\./g, "")) : value;
-    if (isNaN(numValue)) return "";
-    return numValue.toLocaleString("vi-VN");
   };
 
   if (!isOpen) return null;
@@ -100,7 +131,7 @@ export const AddProductModal = ({ isOpen, onClose }: AddProductModalProps) => {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Thêm sản phẩm mới
+            Chỉnh sửa sản phẩm
           </h2>
           <button
             onClick={handleClose}
@@ -198,7 +229,10 @@ export const AddProductModal = ({ isOpen, onClose }: AddProductModalProps) => {
                 rules={{
                   required: "Giá là bắt buộc",
                   validate: (value) => {
-                    const numValue = value || 0;
+                    const numValue =
+                      typeof value === "string"
+                        ? parseNumber(value)
+                        : value || 0;
                     if (numValue < 1000) {
                       return "Giá phải lớn hơn 1.000đ";
                     }
@@ -210,7 +244,10 @@ export const AddProductModal = ({ isOpen, onClose }: AddProductModalProps) => {
                     type="text"
                     value={formatNumber(value || 0)}
                     onChange={(e) => {
-                      const digitsOnly = e.target.value.replace(/\D/g, "");
+                      const inputValue = e.target.value;
+                      // Remove all non-digit characters
+                      const digitsOnly = inputValue.replace(/\D/g, "");
+                      // Convert to number and update
                       const numValue = digitsOnly
                         ? parseInt(digitsOnly, 10)
                         : 0;
@@ -315,11 +352,36 @@ export const AddProductModal = ({ isOpen, onClose }: AddProductModalProps) => {
             </p>
           </div>
 
+          {/* Checkboxes */}
+          <div className="flex gap-6">
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                {...register("is_active")}
+                className="w-4 h-4 text-[#452302] border-gray-300 rounded focus:ring-[#452302] cursor-pointer"
+              />
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                Hoạt động
+              </span>
+            </label>
+
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                {...register("is_new")}
+                className="w-4 h-4 text-[#452302] border-gray-300 rounded focus:ring-[#452302] cursor-pointer"
+              />
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                Sản phẩm mới
+              </span>
+            </label>
+          </div>
+
           {/* Error Message */}
-          {createProductMutation.isError && (
+          {updateProductMutation.isError && (
             <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
               <p className="text-sm text-red-600 dark:text-red-400">
-                Có lỗi xảy ra khi thêm sản phẩm. Vui lòng thử lại.
+                Có lỗi xảy ra khi cập nhật sản phẩm. Vui lòng thử lại.
               </p>
             </div>
           )}
@@ -335,13 +397,13 @@ export const AddProductModal = ({ isOpen, onClose }: AddProductModalProps) => {
             </button>
             <button
               type="submit"
-              disabled={createProductMutation.isPending}
+              disabled={updateProductMutation.isPending}
               className="flex-1 px-4 py-2 text-white rounded-lg hover:bg-[#5a2f03] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: "#452302" }}
             >
-              {createProductMutation.isPending
-                ? "Đang thêm..."
-                : "Thêm sản phẩm"}
+              {updateProductMutation.isPending
+                ? "Đang cập nhật..."
+                : "Cập nhật"}
             </button>
           </div>
         </form>
