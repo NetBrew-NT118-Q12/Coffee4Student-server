@@ -15,7 +15,6 @@ const Order = {
         return callback(err, null);
       }
 
-      // Trả về order_id
       callback(null, results.insertId);
     });
   },
