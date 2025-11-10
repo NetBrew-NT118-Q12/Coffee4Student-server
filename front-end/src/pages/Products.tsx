@@ -6,10 +6,12 @@ import { DropdownItem } from "../components/ui/dropdown/DropdownItem";
 import axios from "../api/axios";
 import type { Product } from "../types/product";
 
+const ITEMS_PER_PAGE = 12;
+
 const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
-  const [currentPage, _setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // fetched data states
   const [products, setProducts] = useState<Product[]>([]);
@@ -60,6 +62,11 @@ const Products = () => {
     return () => controller.abort();
   }, []);
 
+  // Reset to page 1 when category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory]);
+
   function toggleDropdown(productId: string) {
     setOpenDropdownId(openDropdownId === productId ? null : productId);
   }
@@ -72,6 +79,24 @@ const Products = () => {
     selectedCategory === "Tất cả"
       ? products
       : products.filter((p) => p.category === selectedCategory);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   return (
     <>
@@ -121,7 +146,7 @@ const Products = () => {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-6">
-          {filteredProducts.map((product) => (
+          {currentProducts.map((product) => (
             <div
               key={product.id}
               className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 transition-shadow hover:shadow-lg"
@@ -173,46 +198,72 @@ const Products = () => {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-center gap-2 py-4">
-          <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5">
-            <svg
-              className="w-5 h-5 text-gray-600 dark:text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 py-4">
+            <button
+              onClick={goToPrevPage}
+              disabled={currentPage === 1}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
+              <svg
+                className="w-5 h-5 text-gray-600 dark:text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
 
-          <button
-            className="flex items-center justify-center w-8 h-8 text-sm font-medium text-white rounded-full"
-            style={{ backgroundColor: "#452302" }}
-          >
-            {currentPage}
-          </button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`flex items-center justify-center w-8 h-8 text-sm font-medium rounded-full transition-colors ${
+                      currentPage === page
+                        ? "text-white"
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"
+                    }`}
+                    style={
+                      currentPage === page
+                        ? { backgroundColor: "#452302" }
+                        : undefined
+                    }
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+            </div>
 
-          <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5">
-            <svg
-              className="w-5 h-5 text-gray-600 dark:text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+            <button
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
-        </div>
+              <svg
+                className="w-5 h-5 text-gray-600 dark:text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
