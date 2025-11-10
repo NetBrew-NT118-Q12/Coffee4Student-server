@@ -15,7 +15,7 @@ import { DropdownItem } from "../components/ui/dropdown/DropdownItem";
 
 const Orders = () => {
   const [openRowId, setOpenRowId] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, _setCurrentPage] = useState(1);
 
   function toggleRowDropdown(orderId: string) {
     setOpenRowId(openRowId === orderId ? null : orderId);
