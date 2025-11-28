@@ -38,7 +38,7 @@ exports.signup = (req, res) => {
       email,
       phone,
       full_name,
-      hashedPassword, // 👈 Dùng mật khẩu đã băm
+      hashedPassword, // Dùng mật khẩu đã băm
       defaultAvatarUrl,
       (err, result) => {
         if (err) {
@@ -116,7 +116,7 @@ exports.login = (req, res) => {
           .json({ success: false, message: "Sai mật khẩu" });
       }
 
-      // 3. ✅ Mật khẩu khớp! Trả về thông tin user
+      // Mật khẩu khớp! Trả về thông tin user
       res.status(200).json({
         success: true,
         message: "Đăng nhập thành công", // Sửa lỗi "Đăng ký"
@@ -125,7 +125,7 @@ exports.login = (req, res) => {
     });
   };
 
-  // 🔹 Xác định đăng nhập bằng email hay phone
+  // Xác định đăng nhập bằng email hay phone
   if (email) {
     User.findUserByEmail(email, handleUserResult);
   } else if (phone) {
@@ -133,7 +133,7 @@ exports.login = (req, res) => {
   }
 };
 
-// 🚀 Xử lý đăng nhập xã hội (GOOGLE/FACEBOOK) (HÀM MỚI)
+// Xử lý đăng nhập xã hội (GOOGLE/FACEBOOK) (HÀM MỚI)
 exports.socialLogin = async (req, res) => {
   const { idToken } = req.body;
 
