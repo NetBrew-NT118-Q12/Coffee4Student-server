@@ -24,6 +24,7 @@ const productVariantRoutes = require('./src/routes/productVariantRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
 const paymentMethodRoutes = require("./src/routes/paymentMethodRoutes");
 const paymentRoutes = require("./src/routes/paymentRoutes");
+const storeRoutes = require("./src/routes/storeRoutes");
 const popularProductRoutes = require("./src/routes/popularProductRoutes");
 
 
@@ -40,6 +41,7 @@ app.use('/api/product-variants', productVariantRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/payment-methods", paymentMethodRoutes);
 app.use("/payments", paymentRoutes);
+app.use("/api/stores", storeRoutes);
 app.use("/api/popular-products", popularProductRoutes);
 
 const PORT = 5000;
