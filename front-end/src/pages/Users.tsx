@@ -10,7 +10,7 @@ import {
 } from "../components/ui/table";
 
 const Users = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, _setCurrentPage] = useState(1);
 
   return (
     <>
