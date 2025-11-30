@@ -18,9 +18,9 @@ const PopularProduct = {
         p.is_new,
         p.category_id,
         SUM(oi.quantity) AS total_sold
-      FROM OrderItems oi
-      INNER JOIN Orders o ON oi.order_id = o.order_id
-      INNER JOIN Products p ON oi.product_id = p.product_id
+      FROM orderitems oi
+      INNER JOIN orders o ON oi.order_id = o.order_id
+      INNER JOIN products p ON oi.product_id = p.product_id
       WHERE 
         o.status = 'completed' 
         AND o.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
