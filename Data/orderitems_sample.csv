@@ -1,0 +1,18 @@
+order_item_id,order_id,product_id,quantity,unit_price,subtotal,variant_selection,note
+1,1,13,2,55000,110000,"[{\"variant_id\":59,\"name\":\"Vừa\",\"price_adjustment\":0}]","Ít đường"
+2,1,47,1,35000,35000,NULL,NULL
+3,2,7,1,39000,39000,"[{\"variant_id\":53,\"name\":\"Vừa\",\"price_adjustment\":0}]",NULL
+4,2,29,1,45000,45000,"[{\"variant_id\":75,\"name\":\"Vừa\",\"price_adjustment\":0}]","Nhiều đá"
+5,3,5,2,65000,130000,"[{\"variant_id\":51,\"name\":\"Vừa\",\"price_adjustment\":0}]",NULL
+6,3,21,1,39000,39000,NULL,NULL
+7,4,13,1,55000,55000,"[{\"variant_id\":59,\"name\":\"Vừa\",\"price_adjustment\":0}]",NULL
+8,5,29,2,45000,90000,"[{\"variant_id\":75,\"name\":\"Vừa\",\"price_adjustment\":0}]",NULL
+9,6,13,2,55000,110000,NULL,"Ít đá"
+10,6,47,1,35000,35000,NULL,NULL
+11,7,7,2,39000,78000,NULL,NULL
+12,8,13,3,55000,165000,"[{\"variant_id\":59,\"name\":\"Vừa\",\"price_adjustment\":0}]",NULL
+13,8,21,1,39000,39000,NULL,NULL
+14,9,29,2,45000,90000,"[{\"variant_id\":75,\"name\":\"Vừa\",\"price_adjustment\":0}]",NULL
+15,10,13,2,55000,110000,NULL,NULL
+16,11,7,1,39000,39000,NULL,NULL
+17,11,29,1,45000,45000,NULL,NULL

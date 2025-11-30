@@ -1,0 +1,16 @@
+store_id,store_name,address,phone,opening_hours,image_url,is_active,distance
+1,"HCM Cao Thắng","2/12 Cao Thắng, Phường 5, Quận 3, TP. HCM",123456789,"10:00 – 22:00",https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/stores/HCMCaoThang.webp,1,0.5
+2,"HCM Nam Kỳ Khởi Nghĩa","193/19 Nam Kỳ Khởi Nghĩa, Phường Võ Thị Sáu, Quận 3, TP. HCM",123456789,"24/7 – Mở cửa cả ngày",https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/stores/HCMNamKyKhoiNghia.webp,1,0.02
+3,"HCM Bình Quới","1143 Bình Quới, Phường 28, Bình Thạnh, TP. HCM",123456789,"08:00 – 23:30",https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/stores/HCMBinhQuoi.webp,1,2.7
+4,"HCM Nguyễn Trãi","212B/D18B Nguyễn Trãi, Phường Nguyễn Cư Trinh, Quận 1, TP. HCM",123456789,"24/7 – Mở cửa cả ngày",https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/stores/HCMNguyenTrai.webp,1,1.5
+5,"HCM Bình Lợi","173/3A Bình Lợi, Phường 13, Bình Thạnh, TP. HCM",123456789,"07:00 – 22:00",https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/stores/HCMBinhLoi.webp,1,0.05
+6,"HCM Sương Nguyệt Ánh","68 Đ. Sương Nguyệt Ánh, Phường Phạm Ngũ Lão, Quận 1, TP.HCM",123456789,"07:00 - 22:00",https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/stores/HCMSuongNguyetAnh.webp,1,3.2
+7,"HCM Nguyễn Siêu","6 Nguyễn Siêu, P. Bến Nghé, Quận 1, TP.HCM",123456789,"07:30 - 23:59",https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/stores/HCMNguyenSieu.webp,1,7.6
+8,"HCM Tôn Thất Đạm","Black Door, Tầng 2, 14 Tôn Thất Đạm, P. Nguyễn Thái Bình, Quận 1, TP. HCM",123456789,"10:00 - 01:00",https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/stores/HCMTonThatDam.webp,1,8.9
+9,"HCM Trần Bình Trọng","120/25 Trần Bình Trọng, Phường 2, Quận 5, TP.HCM",123456789,"09:00 - 22:00",https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/stores/HCMTranBinhTrong.webp,1,5.4
+10,"HCM Thảo Điền","28 Thảo Điền, Quận 2, TP.HCM",123456789,"7:00 - 22:00",https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/stores/HCMThaoDien.webp,1,8.2
+11,"HCM Phan Kế Bính","85 Phan Kế Bính, DaKao, Quận 1, TP.HCM",123456789,"07:30 - 23:00",https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/stores/HCMPhanKeBinh.webp,1,10
+12,"HCM Lê Đức Thọ","1199 Lê Đức Thọ, Phường 13, Quận Gò Vấp, TP.HCM",123456789,"06:00 - 21:00",https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/stores/HCMLeDucTho.webp,1,2.9
+13,"HCM Lê Văn Lương","326 Đ. Lê Văn Lương, Tân Quy, Quận 7, TP.HCM",123456789,"14:00 - 22:00",https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/stores/HCMLeVanLuong.webp,1,1.1
+14,"HCM Sư Vạn Hạnh","796/2a Sư Vạn Hạnh, Phường 12, Quận 10, TP.HCM",123456789,"08:00 - 23:00",https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/stores/HCMSuVanHanh.webp,1,4.8
+15,"HCM Kênh Tân Hóa","13 Đ. Kênh Tân Hóa, Phường Tân Phú, TP.HCM",123456789,"07:00 - 22:00",https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/stores/HCMKenhTanHoa.webp,1,0.01
