@@ -4,12 +4,17 @@ Flask API Server cho hệ thống gợi ý
 import sys
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from hybrid import HybridRecommender
 import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+src_path = os.path.join(current_dir, '..', 'src')
+sys.path.append(src_path)
+
+
+from hybrid import HybridRecommender
+
 from dotenv import load_dotenv
 
-# THÊM 2 DÒNG NÀY VÀO ĐẦU FILE
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/..')  # Thêm src vào path
 
 load_dotenv()
 
