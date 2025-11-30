@@ -25,6 +25,8 @@ const orderRoutes = require('./src/routes/orderRoutes');
 const paymentMethodRoutes = require("./src/routes/paymentMethodRoutes");
 const paymentRoutes = require("./src/routes/paymentRoutes");
 const storeRoutes = require("./src/routes/storeRoutes");
+const popularProductRoutes = require("./src/routes/popularProductRoutes");
+
 
 const app = express();
 app.use(cors());
@@ -40,6 +42,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/payment-methods", paymentMethodRoutes);
 app.use("/payments", paymentRoutes);
 app.use("/api/stores", storeRoutes);
+app.use("/api/popular-products", popularProductRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
