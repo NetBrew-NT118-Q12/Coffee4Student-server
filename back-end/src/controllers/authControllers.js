@@ -18,7 +18,7 @@ const formatUserResponse = (user) => {
   };
 };
 
-// 🧩 Xử lý đăng ký (ĐÃ NÂNG CẤP BCRYPT)
+//  Xử lý đăng ký (ĐÃ NÂNG CẤP BCRYPT)
 exports.signup = (req, res) => {
   console.log("📩 Nhận dữ liệu từ Android:", req.body);
   const { email, phone, full_name, password } = req.body;

@@ -24,6 +24,8 @@ const productVariantRoutes = require('./src/routes/productVariantRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
 const paymentMethodRoutes = require("./src/routes/paymentMethodRoutes");
 const paymentRoutes = require("./src/routes/paymentRoutes");
+const popularProductRoutes = require("./src/routes/popularProductRoutes");
+
 
 const app = express();
 app.use(cors());
@@ -38,7 +40,7 @@ app.use('/api/product-variants', productVariantRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/payment-methods", paymentMethodRoutes);
 app.use("/payments", paymentRoutes);
-
+app.use("/api/popular-products", popularProductRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
