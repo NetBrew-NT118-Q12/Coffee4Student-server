@@ -1,0 +1,17 @@
+category_id,name,description,image_url
+1,ESPRESSO,NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/ESPRESSO.png
+2,AMERICANO,NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/AMERICANO.png
+3,LATTE,NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/LATTE.png
+4,FRAPPE,NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/FRAPPE.png
+5,""PHIN" VIỆT NAM",NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/PHINVIETNAM.png
+6,"COLD BREW",NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/COLDBREW.png
+7,"MATCHA TÂY BẮC",NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/MATCHATAYBAC.png
+8,"TRÀ TRÁI CÂY",NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/TRATRAICAY.png
+9,"TRÀ SỮA",NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/TRASUA.png
+10,CHOCOLATE,NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/CHOCOLATE.png
+11,"BÁNH NGỌT",NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/BANHNGOT.png
+12,"BÁNH MẶN",NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/BANHMAN.png
+13,PASTA,NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/PASTA.png
+14,PIZZA,NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/PIZZA.png
+15,SALAD,NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/SALAD.png
+16,TOPPING,NULL,https://netbrew.s3.ap-southeast-1.amazonaws.com/upload/categories/TOPPING.png

@@ -1,0 +1,13 @@
+order_id,user_id,store_id,total_price,status,created_at,updated_at,delivery_type,shipping_address
+1,8,1,125000,completed,2025-11-25 10:30:00,2025-11-25 11:00:00,takeaway,NULL
+2,10,1,89000,completed,2025-11-25 14:20:00,2025-11-25 14:50:00,takeaway,NULL
+3,11,2,156000,completed,2025-11-26 09:15:00,2025-11-26 09:45:00,delivery,"123 Đường D1, Q9"
+4,8,1,65000,completed,2025-11-26 16:30:00,2025-11-26 17:00:00,takeaway,NULL
+5,12,3,98000,completed,2025-11-27 11:00:00,2025-11-27 11:30:00,dine-in,NULL
+6,13,1,145000,completed,2025-11-27 15:45:00,2025-11-27 16:15:00,takeaway,NULL
+7,10,2,79000,completed,2025-11-28 10:20:00,2025-11-28 10:50:00,delivery,"456 Hoàng Diệu 2"
+8,8,1,189000,completed,2025-11-28 13:30:00,2025-11-28 14:00:00,takeaway,NULL
+9,11,1,95000,completed,2025-11-29 09:00:00,2025-11-29 09:30:00,takeaway,NULL
+10,12,1,110000,completed,2025-11-29 14:15:00,2025-11-29 14:45:00,delivery,"789 Lê Văn Việt"
+11,8,1,75000,pending,2025-11-30 10:00:00,2025-11-30 10:00:00,takeaway,NULL
+12,10,2,45000,cancelled,2025-11-29 16:00:00,2025-11-29 16:30:00,takeaway,NULL
