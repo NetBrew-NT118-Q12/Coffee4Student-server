@@ -1,7 +1,5 @@
-# Tên của kịch bản
 name: Deploy to VPS
 
-# Kích hoạt: Chạy kịch bản này mỗi khi push lên nhánh 'dev'
 on:
   push:
     branches:
@@ -9,43 +7,59 @@ on:
 
 jobs:
   deploy:
-    # Chạy trên máy ảo Ubuntu mới nhất của GitHub
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Lấy code mới nhất (từ GitHub)
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Thực hiện SSH vào VPS và chạy lệnh
       - name: Deploy to VPS
-        # Dùng một Action (công cụ) có sẵn
         uses: appleboy/ssh-action@v1.0.3
         with:
-          # Lấy các "Bí mật" bạn đã tạo
           host: ${{ secrets.VPS_SSH_HOST }}
           username: ${{ secrets.VPS_SSH_USERNAME }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
-          port: 22 # Cổng SSH, 22 là mặc định
+          port: 22
 
           script: |
-
-            # Nạp (source) NVM để có thể dùng npm, node, pm2
+            # Load NVM
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-            # Di chuyển đến thư mục dự án
+            # Pull latest code
             cd /home/vantai/projects/Coffee4Student-server
-
-            # Kéo code mới nhất (sửa lại để dùng 'reset' cho an toàn)
             git fetch origin
             git reset --hard origin/dev
 
-            # Di chuyển vào thư mục backend
-            cd back-end
+            # ===== DEPLOY AI (DOCKER) =====
+            echo "🐳 Deploying AI Service..."
+            cd ai-recommendation
+            
+            # Stop old container
+            docker stop coffee-ai 2>/dev/null || true
+            docker rm coffee-ai 2>/dev/null || true
+            
+            # Build new image
+            docker build -t coffee-ai:latest .
+            
+            # Run new container
+            docker run -d \
+              --name coffee-ai \
+              --restart unless-stopped \
+              -p 127.0.0.1:5001:5001 \
+              --env-file .env \
+              coffee-ai:latest
+            
+            # Wait for AI to start
+            sleep 5
+            
+            # Check AI health
+            curl -f http://127.0.0.1:5001/health || exit 1
 
-            # Cài đặt (nếu có gói mới)
+            # ===== DEPLOY BACKEND (PM2) =====
+            echo "🚀 Deploying Backend..."
+            cd ../back-end
             npm install
-            # Khởi động lại server với pm2
-            pm2 restart server
+            pm2 restart server || pm2 start server.js --name server
+
+            echo "✅ Deploy completed!"
