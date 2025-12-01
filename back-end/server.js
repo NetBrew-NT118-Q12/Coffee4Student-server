@@ -23,7 +23,7 @@ const paymentMethodRoutes = require("./src/routes/paymentMethodRoutes");
 const paymentRoutes = require("./src/routes/paymentRoutes");
 const storeRoutes = require("./src/routes/storeRoutes");
 const popularProductRoutes = require("./src/routes/popularProductRoutes");
-const recommendationRoutes = require("./src/routes/recommendationRoutes"); // ← THÊM
+const recommendationRoutes = require("./src/routes/recommendationRoutes"); 
 
 const app = express();
 app.use(cors());
@@ -40,7 +40,7 @@ app.use("/payment-methods", paymentMethodRoutes);
 app.use("/payments", paymentRoutes);
 app.use("/api/stores", storeRoutes);
 app.use("/api/popular-products", popularProductRoutes);
-app.use("/api/recommendations", recommendationRoutes); // ← THÊM
+app.use("/api/recommendations", recommendationRoutes); 
 
 const PORT = 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

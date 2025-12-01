@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - dev
-
+ 
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -32,7 +32,7 @@ jobs:
             git reset --hard origin/dev
 
             # ===== DEPLOY AI (DOCKER) =====
-            echo "🐳 Deploying AI Service..."
+            echo " Deploying AI Service..."
             cd ai-recommendation
             
             # Stop old container
@@ -62,4 +62,9 @@ jobs:
             npm install
             pm2 restart server || pm2 start server.js --name server
 
-            echo "✅ Deploy completed!"
+            echo " Deploy completed!"
+
+
+
+
+

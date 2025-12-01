@@ -25,3 +25,13 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 # Run application
 CMD ["python", "api/app.py"]
+
+
+
+
+# docker run -d \
+#   --name coffee-ai \
+#   --restart unless-stopped \
+#   -p 127.0.0.1:5001:5001 \
+#   --env-file ~/projects/Coffee4Student-server/ai-recommendation/.env \
+#   coffee-ai:latest

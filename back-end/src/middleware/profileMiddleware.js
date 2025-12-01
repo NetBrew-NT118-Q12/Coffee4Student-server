@@ -3,17 +3,17 @@ const multerS3 = require("multer-s3");
 const AWS = require("aws-sdk");
 const path = require("path");
 
-// ⚙️ Cấu hình AWS
+
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID, 
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   region: "ap-southeast-1",
 });
 
-// 📦 Tạo S3 instance
+
 const s3 = new AWS.S3();
 
-// 📤 Cấu hình multer để upload trực tiếp lên S3
+
 const upload = multer({
   storage: multerS3({
     s3: s3,
