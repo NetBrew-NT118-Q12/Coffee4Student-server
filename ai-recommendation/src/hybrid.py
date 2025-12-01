@@ -12,9 +12,8 @@ class HybridRecommender:
         self.db = Database()
         self.db.connect()
         
-        # Trọng số cho 2 phương pháp
-        self.content_weight = 0.6  # 60%
-        self.collab_weight = 0.4   # 40%
+        self.content_weight = 0.6  
+        self.collab_weight = 0.4  
     
     def get_user_order_count(self, user_id):
         """Đếm số đơn hàng hoàn thành của user"""
@@ -54,37 +53,37 @@ class HybridRecommender:
                 'user_order_count': int
             }
         """
-        # 1. Kiểm tra user có đủ lịch sử không
+        #  Kiểm tra user có đủ lịch sử không
         order_count = self.get_user_order_count(user_id)
-        print(f"📊 User {user_id} có {order_count} đơn hàng")
+        print(f" User {user_id} có {order_count} đơn hàng")
         
         # Nếu user mới (<3 đơn), fallback về popularity
         if order_count < 3:
-            print("⚠️  User mới, fallback về sản phẩm phổ biến")
+            print("  User mới, fallback về sản phẩm phổ biến")
             return {
                 'recommendations': self._get_popular_products(top_n),
                 'method_used': 'popular',
                 'user_order_count': order_count
             }
         
-        # 2. Lấy gợi ý từ Content-Based
-        print("\n🔍 Chạy Content-Based...")
+        #  Lấy gợi ý từ Content-Based
+        print("\n Chạy Content-Based...")
         content_results = self.content_based.get_similar_products(
             product_id, 
             top_n=top_n
         )
         
-        # 3. Lấy gợi ý từ Collaborative
-        print("🔍 Chạy Collaborative...")
+        # Lấy gợi ý từ Collaborative
+        print(" Chạy Collaborative...")
         collab_results = self.collaborative.get_recommendations(
             product_id, 
             top_n=top_n
         )
         
-        # 4. Merge kết quả
+        #  Merge kết quả
         merged = self._merge_results(content_results, collab_results)
         
-        # 5. Lọc bỏ sản phẩm user đã order gần đây
+        #  Lọc bỏ sản phẩm user đã order gần đây
         recent_products = self.get_user_recent_orders(user_id, days=7)
         filtered = [
             item for item in merged 

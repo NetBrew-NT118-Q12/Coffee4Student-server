@@ -1,3 +1,4 @@
+id,order_id,temperature,weather_condition,humidity,recorded_at
 attribute_id,product_id,drink_type,category_type,temperature,sweetness_level,bitterness_level,has_milk,has_caffeine,has_ice,flavor_notes,created_at,updated_at
 1,1,coffee,espresso,hot,none,strong,0,1,0,"bold, intense, roasted","2025-11-30 14:48:38","2025-11-30 14:48:38"
 2,2,coffee,espresso,cold,none,strong,0,1,1,"bold, intense, roasted","2025-11-30 14:48:38","2025-11-30 14:48:38"

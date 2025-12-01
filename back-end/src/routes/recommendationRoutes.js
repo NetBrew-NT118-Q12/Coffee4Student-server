@@ -20,7 +20,7 @@ router.post("/", async (req, res) => {
       });
     }
 
-    console.log(`📤 Calling AI API: user=${user_id}, product=${product_id}`);
+    console.log(` Calling AI API: user=${user_id}, product=${product_id}`);
 
     // Gọi Python AI service
     const response = await axios.post(
@@ -35,12 +35,12 @@ router.post("/", async (req, res) => {
       }
     );
 
-    console.log("✅ AI API responded successfully");
+    console.log(" AI API responded successfully");
 
     // Trả về kết quả
     return res.json(response.data);
   } catch (error) {
-    console.error("❌ AI API Error:", error.message);
+    console.error(" AI API Error:", error.message);
 
     // Xử lý lỗi chi tiết
     if (error.code === "ECONNREFUSED") {

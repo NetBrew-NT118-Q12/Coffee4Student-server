@@ -85,7 +85,7 @@ def get_recommendations():
         })
     
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f" Error: {e}")
         return jsonify({
             'success': False,
             'message': str(e)
