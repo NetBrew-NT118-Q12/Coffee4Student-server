@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
-
 // URL AI service (chạy local trên VPS)
 const AI_API_URL = process.env.AI_API_URL || "http://127.0.0.1:5001";
 
@@ -61,6 +60,7 @@ router.post("/", async (req, res) => {
       error: error.message,
     });
   }
+
 });
 
 module.exports = router;

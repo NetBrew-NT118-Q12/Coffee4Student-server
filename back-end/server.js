@@ -5,15 +5,12 @@ const cors = require("cors");
 const path = require("path");
 const bodyParser = require("body-parser");
 
-// ========== KHỞI TẠO FIREBASE ADMIN ==========
-// Đảm bảo bạn đã có file "serviceAccountKey.json" trong thư mục (ví dụ: src/config)
 const admin = require("firebase-admin");
-const serviceAccount = require("./src/config/serviceAccountKey.json"); // 👈 Cập nhật đường dẫn này
+const serviceAccount = require("./src/config/serviceAccountKey.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
-// ============================================
 
 // Routes
 const authRoutes = require("./src/routes/authRoutes");
@@ -26,7 +23,7 @@ const paymentMethodRoutes = require("./src/routes/paymentMethodRoutes");
 const paymentRoutes = require("./src/routes/paymentRoutes");
 const storeRoutes = require("./src/routes/storeRoutes");
 const popularProductRoutes = require("./src/routes/popularProductRoutes");
-
+const recommendationRoutes = require("./src/routes/recommendationRoutes"); // ← THÊM
 
 const app = express();
 app.use(cors());
@@ -43,6 +40,7 @@ app.use("/payment-methods", paymentMethodRoutes);
 app.use("/payments", paymentRoutes);
 app.use("/api/stores", storeRoutes);
 app.use("/api/popular-products", popularProductRoutes);
+app.use("/api/recommendations", recommendationRoutes); // ← THÊM
 
 const PORT = 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

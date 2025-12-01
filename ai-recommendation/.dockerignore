@@ -1,0 +1,23 @@
+nano .dockerignore
+```
+
+Dán nội dung:
+```
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+.env.local
+.DS_Store
+*.log
+.vscode/
+.idea/
