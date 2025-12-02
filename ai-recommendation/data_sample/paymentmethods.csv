@@ -1,0 +1,5 @@
+payment_method_id,name,is_active
+1,"Tiền mặt",1
+2,MoMo,1
+3,"Thẻ quốc tế",1
+4,"Thẻ ATM nội địa",1
