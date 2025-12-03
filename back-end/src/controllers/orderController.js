@@ -5,6 +5,7 @@ const OrderItem = require("../models/orderItemModel");
 const N8N_WEBHOOK_URL =
   process.env.N8N_WEBHOOK_URL || "http://localhost:5678/webhook/order-created";
 
+// ✅ Hàm tạo đơn hàng
 const createOrder = (req, res) => {
   const { items } = req.body;
 
@@ -22,13 +23,13 @@ const createOrder = (req, res) => {
   const created_at = now.toISOString().slice(0, 16).replace("T", " ");
   const created_time = now.toTimeString().slice(0, 5);
 
-  // Tạo order
+  // ✅ Tự động chuyển sang "preparing" thay vì "pending"
   Order.create(
     {
       user_id,
       store_id,
       total_price,
-      status: "pending",
+      status: "preparing", // ← THAY ĐỔI TẠI ĐÂY
       delivery_type,
     },
     (err, orderId) => {
@@ -64,7 +65,7 @@ const createOrder = (req, res) => {
           return;
         }
 
-        // Gửi webhook cho n8n
+        // ✅ Gửi webhook cho n8n
         try {
           await axios.post(
             N8N_WEBHOOK_URL,
@@ -75,6 +76,7 @@ const createOrder = (req, res) => {
               total_price,
               created_at,
               created_time,
+              status: "preparing", // ← Gửi status mới
             },
             { timeout: 5000 }
           );
@@ -89,7 +91,7 @@ const createOrder = (req, res) => {
           message: "Order created successfully",
           order_id: orderId,
           total_price,
-          status: "pending",
+          status: "preparing", // ← THAY ĐỔI TẠI ĐÂY
           created_time,
           created_at,
         });
@@ -98,4 +100,47 @@ const createOrder = (req, res) => {
   );
 };
 
-module.exports = { createOrder };
+// ✅ HÀM HỦY ĐƠN HÀNG (THÊM MỚI)
+const cancelOrder = (req, res) => {
+  const orderId = req.params.id;
+
+  if (!orderId) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing order_id",
+    });
+  }
+
+  Order.cancel(orderId, (err, result) => {
+    if (err) {
+      console.error("Cancel Order Error:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to cancel order",
+        error: err.message,
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    const now = new Date();
+    const updated_at = now.toISOString().slice(0, 16).replace("T", " ");
+    const updated_time = now.toTimeString().slice(0, 5);
+
+    return res.status(200).json({
+      success: true,
+      message: "Order cancelled successfully",
+      status: "cancelled",
+      updated_time,
+      updated_at,
+    });
+  });
+};
+
+// ✅ EXPORT CẢ 2 HÀM
+module.exports = { createOrder, cancelOrder };
