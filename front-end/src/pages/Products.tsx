@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Listbox } from "@headlessui/react";
 import PageMeta from "../components/common/PageMeta";
 import { PlusIcon, MoreDotIcon } from "../icons";
 import { Dropdown } from "../components/ui/dropdown/Dropdown";
@@ -7,6 +8,7 @@ import { useProducts, useDeleteProduct } from "../hook/useProducts";
 import { useCategories } from "../hook/useCategories";
 import { AddProductModal } from "../components/products/AddProductModal";
 import { EditProductModal } from "../components/products/EditProductModal";
+import { formatPrice } from "../utils/formatters"; // ← fixed import
 import type { Product } from "../types/product";
 
 const ITEMS_PER_PAGE = 12;
@@ -113,6 +115,17 @@ const Products = () => {
     }
   };
 
+  // Get selected category name
+  const getSelectedCategoryLabel = () => {
+    if (selectedCategoryId === "all") {
+      return "Tất cả";
+    }
+    const category = categories.find(
+      (c) => c.category_id === selectedCategoryId
+    );
+    return category?.name || "Chọn danh mục";
+  };
+
   return (
     <>
       <PageMeta
@@ -135,40 +148,78 @@ const Products = () => {
         </div>
 
         {/* Category Filter */}
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          <button
-            onClick={() => setSelectedCategoryId("all")}
-            className={`px-4 py-2 text-sm font-normal rounded-lg whitespace-nowrap transition-colors ${
-              selectedCategoryId === "all"
-                ? "text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-            }`}
-            style={
-              selectedCategoryId === "all"
-                ? { backgroundColor: "#452302" }
-                : undefined
-            }
-          >
-            Tất cả
-          </button>
-          {categories.map((category) => (
-            <button
-              key={category.category_id}
-              onClick={() => setSelectedCategoryId(category.category_id)}
-              className={`px-4 py-2 text-sm font-normal rounded-lg whitespace-nowrap transition-colors ${
-                selectedCategoryId === category.category_id
-                  ? "text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-              }`}
-              style={
-                selectedCategoryId === category.category_id
-                  ? { backgroundColor: "#452302" }
-                  : undefined
-              }
-            >
-              {category.name}
-            </button>
-          ))}
+        <div className="flex items-center justify-start pb-2">
+          <Listbox value={selectedCategoryId} onChange={setSelectedCategoryId}>
+            <div className="relative w-64">
+              <Listbox.Button className="relative w-full px-4 py-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm text-left cursor-pointer hover:border-gray-400 dark:hover:border-gray-600 transition-colors">
+                <span className="block truncate">
+                  {getSelectedCategoryLabel()}
+                </span>
+                <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                  <svg
+                    className="w-5 h-5 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                    />
+                  </svg>
+                </span>
+              </Listbox.Button>
+
+              <Listbox.Options className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <Listbox.Option
+                  value="all"
+                  className={({ active }) =>
+                    `relative cursor-pointer select-none py-2 px-4 ${
+                      active
+                        ? "bg-[#452302] text-white"
+                        : "text-gray-900 dark:text-white"
+                    }`
+                  }
+                >
+                  {({ selected }) => (
+                    <>
+                      <span
+                        className={selected ? "block font-semibold" : "block"}
+                      >
+                        Tất cả
+                      </span>
+                    </>
+                  )}
+                </Listbox.Option>
+
+                {categories.map((category) => (
+                  <Listbox.Option
+                    key={category.category_id}
+                    value={category.category_id}
+                    className={({ active }) =>
+                      `relative cursor-pointer select-none py-2 px-4 ${
+                        active
+                          ? "bg-[#452302] text-white"
+                          : "text-gray-900 dark:text-white"
+                      }`
+                    }
+                  >
+                    {({ selected }) => (
+                      <>
+                        <span
+                          className={selected ? "block font-semibold" : "block"}
+                        >
+                          {category.name}
+                        </span>
+                      </>
+                    )}
+                  </Listbox.Option>
+                ))}
+              </Listbox.Options>
+            </div>
+          </Listbox>
         </div>
 
         {/* Loading / Error */}
@@ -264,11 +315,11 @@ const Products = () => {
                   <div className="mt-2 flex items-center gap-2">
                     {product.old_price && product.old_price > 0 && (
                       <span className="text-xs text-gray-500 line-through dark:text-gray-400">
-                        {product.old_price.toLocaleString("vi-VN")}đ
+                        {formatPrice(product.old_price)}
                       </span>
                     )}
                     <span className="text-sm font-semibold text-gray-900 dark:text-white/90">
-                      {product.price.toLocaleString("vi-VN")}đ
+                      {formatPrice(product.price)}
                     </span>
                   </div>
                 </div>
