@@ -24,8 +24,7 @@ const paymentRoutes = require("./src/routes/paymentRoutes");
 const storeRoutes = require("./src/routes/storeRoutes");
 const popularProductRoutes = require("./src/routes/popularProductRoutes");
 const recommendationRoutes = require("./src/routes/recommendationRoutes"); 
-const mlRecommendationRoutes = require("./src/routes/mlRecommendationRoutes"); // ← THÊM
-
+const mlRecommendationRoutes = require("./src/routes/mlRecommendationRoutes"); 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -42,7 +41,7 @@ app.use("/payments", paymentRoutes);
 app.use("/api/stores", storeRoutes);
 app.use("/api/popular-products", popularProductRoutes);
 app.use("/api/recommendations", recommendationRoutes);
-app.use("/api/ml-recommendations", mlRecommendationRoutes); // ← THÊM
+app.use("/api/ml-recommendations", mlRecommendationRoutes); 
 
 const PORT = 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

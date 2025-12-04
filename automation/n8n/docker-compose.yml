@@ -6,7 +6,7 @@ services:
     container_name: n8n
     restart: unless-stopped
     ports:
-      - "5678:5678"  # Đã xóa 127.0.0.1 để truy cập được từ bên ngoài
+      - "5678:5678" 
     environment:
       - N8N_HOST=0.0.0.0
       - N8N_PORT=5678
