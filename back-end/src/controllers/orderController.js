@@ -29,7 +29,7 @@ const createOrder = (req, res) => {
       user_id,
       store_id,
       total_price,
-      status: "preparing", // ← THAY ĐỔI TẠI ĐÂY
+      status: "completed", // ← THAY ĐỔI TẠI ĐÂY
       delivery_type,
     },
     (err, orderId) => {
@@ -76,7 +76,7 @@ const createOrder = (req, res) => {
               total_price,
               created_at,
               created_time,
-              status: "preparing", // ← Gửi status mới
+              status: "completed", // ← Gửi status mới
             },
             { timeout: 5000 }
           );
@@ -91,7 +91,7 @@ const createOrder = (req, res) => {
           message: "Order created successfully",
           order_id: orderId,
           total_price,
-          status: "preparing", // ← THAY ĐỔI TẠI ĐÂY
+          status: "completed", // ← THAY ĐỔI TẠI ĐÂY
           created_time,
           created_at,
         });
