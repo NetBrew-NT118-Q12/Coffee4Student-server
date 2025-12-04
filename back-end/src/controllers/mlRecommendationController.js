@@ -3,177 +3,202 @@ const axios = require("axios");
 const SAGEMAKER_API_URL = process.env.SAGEMAKER_API_URL;
 
 /**
- * Gọi SageMaker API để lấy gợi ý ML-based
+ * 🤖 Gọi SageMaker để lấy gợi ý ML-based sau khi complete order
+ * Input: order_id (từ Android)
+ * Output: Top N sản phẩm gợi ý
  */
 const getMLRecommendations = async (req, res) => {
   try {
-    const { user_id, store_id, weather_temp, weather_condition, hour, top_n } = req.body;
+    const { order_id, top_n } = req.body;
 
-    if (!user_id) {
+    if (!order_id) {
       return res.status(400).json({
         success: false,
-        message: "Missing user_id",
+        message: "Missing order_id",
       });
     }
 
-    console.log(`🤖 Calling SageMaker API for user ${user_id}`);
+    console.log(`🤖 Getting ML recommendations for order ${order_id}`);
 
-    // Gọi SageMaker qua API Gateway
-    const response = await axios.post(
-      SAGEMAKER_API_URL,
-      {
-        user_id: parseInt(user_id),
-        store_id: parseInt(store_id) || 1,
-        weather_temp: parseFloat(weather_temp) || 28,
-        weather_condition: weather_condition || "Sunny",
-        hour: parseInt(hour) || new Date().getHours(),
-        top_n: parseInt(top_n) || 5,
-      },
-      {
-        timeout: 30000, // 30s timeout
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("✅ SageMaker responded:", response.data);
-
-    // Lấy product details từ DB
     const db = require("../config/db");
-    const predicted_product_id = response.data.predicted_product_id;
 
-    db.query(
-      "SELECT * FROM products WHERE product_id = ?",
-      [predicted_product_id],
-      (err, results) => {
-        if (err) {
-          console.error("DB error:", err);
-          return res.status(500).json({
+    // ✅ BƯỚC 1: Lấy thông tin order + weather
+    const orderQuery = `
+      SELECT 
+        o.order_id,
+        o.user_id,
+        o.store_id,
+        o.created_at,
+        ow.temperature,
+        ow.weather_condition,
+        ow.humidity
+      FROM orders o
+      LEFT JOIN order_weather ow ON o.order_id = ow.order_id
+      WHERE o.order_id = ?
+    `;
+
+    db.query(orderQuery, [order_id], async (err, orderResults) => {
+      if (err || orderResults.length === 0) {
+        console.error("❌ Order not found:", err);
+        return res.status(404).json({
+          success: false,
+          message: "Order not found",
+        });
+      }
+
+      const order = orderResults[0];
+      const hour = new Date(order.created_at).getHours();
+
+      // ✅ BƯỚC 2: Lấy sản phẩm từ order (để có context)
+      const itemsQuery = `
+        SELECT product_id
+        FROM orderitems
+        WHERE order_id = ?
+        LIMIT 1
+      `;
+
+      db.query(itemsQuery, [order_id], async (err2, itemResults) => {
+        if (err2 || itemResults.length === 0) {
+          console.error("❌ No items found for order");
+          return res.status(404).json({
             success: false,
-            message: "Database error",
+            message: "No items found for this order",
           });
         }
 
-        return res.json({
-          success: true,
-          ml_prediction: response.data,
-          product: results[0] || null,
-          method: "sagemaker-ml",
-        });
-      }
-    );
-  } catch (error) {
-    console.error("❌ SageMaker API Error:", error.message);
+        const contextProductId = itemResults[0].product_id;
 
-    if (error.code === "ECONNREFUSED" || error.code === "ETIMEDOUT") {
-      return res.status(503).json({
-        success: false,
-        message: "SageMaker API unavailable",
-        error: error.message,
-      });
-    }
+        // ✅ BƯỚC 3: Chuẩn bị payload cho SageMaker
+        const sagemakerPayload = {
+          user_id: parseInt(order.user_id),
+          store_id: parseInt(order.store_id),
+          weather_temp: parseFloat(order.temperature) || 28,
+          weather_condition: order.weather_condition || "Clear",
+          humidity: parseInt(order.humidity) || 75,
+          hour: parseInt(hour),
+          context_product_id: parseInt(contextProductId),
+          top_n: parseInt(top_n) || 5,
+        };
 
-    return res.status(500).json({
-      success: false,
-      message: "ML service error",
-      error: error.message,
-    });
-  }
-};
+        console.log("📤 SageMaker Payload:", sagemakerPayload);
 
-/**
- * Hybrid: Kết hợp ML predictions với rule-based recommendations
- */
-const getHybridRecommendations = async (req, res) => {
-  try {
-    const { user_id, product_id, store_id, weather_temp, weather_condition, top_n } = req.body;
+        // ✅ BƯỚC 4: Gọi SageMaker API
+        try {
+          const response = await axios.post(
+            SAGEMAKER_API_URL,
+            sagemakerPayload,
+            {
+              timeout: 30000,
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
 
-    if (!user_id || !product_id) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing user_id or product_id",
-      });
-    }
+          console.log("✅ SageMaker responded:", response.data);
 
-    const db = require("../config/db");
-    const axios = require("axios");
+          // ✅ BƯỚC 5: Lấy product details từ DB
+          const predictedProducts = response.data.recommended_products || [];
 
-    // 1. Gọi ML model
-    let mlPrediction = null;
-    try {
-      const mlResponse = await axios.post(
-        SAGEMAKER_API_URL,
-        {
-          user_id: parseInt(user_id),
-          store_id: parseInt(store_id) || 1,
-          weather_temp: parseFloat(weather_temp) || 28,
-          weather_condition: weather_condition || "Sunny",
-          hour: new Date().getHours(),
-        },
-        { timeout: 10000 }
-      );
-      mlPrediction = mlResponse.data.predicted_product_id;
-    } catch (error) {
-      console.warn("⚠️ ML prediction failed, using rule-based fallback");
-    }
-
-    // 2. Gọi AI recommendation hiện tại (Python service)
-    const AI_API_URL = process.env.AI_API_URL || "http://127.0.0.1:5001";
-    const aiResponse = await axios.post(
-      `${AI_API_URL}/api/recommendations`,
-      {
-        user_id: parseInt(user_id),
-        product_id: parseInt(product_id),
-        top_n: parseInt(top_n) || 5,
-      },
-      { timeout: 10000 }
-    );
-
-    // 3. Merge kết quả
-    const recommendations = aiResponse.data.recommendations || [];
-
-    // Nếu có ML prediction và chưa có trong list, thêm vào top
-    if (mlPrediction && !recommendations.find((r) => r.product_id === mlPrediction)) {
-      // Lấy thông tin product
-      db.query(
-        "SELECT product_id, name, category_id FROM products WHERE product_id = ?",
-        [mlPrediction],
-        (err, results) => {
-          if (!err && results.length > 0) {
-            recommendations.unshift({
-              ...results[0],
-              final_score: 0.95,
-              method: "ml-prediction",
+          if (predictedProducts.length === 0) {
+            return res.json({
+              success: true,
+              recommendations: [],
+              method: "sagemaker-ml",
+              message: "No recommendations available",
             });
           }
 
-          return res.json({
-            success: true,
-            recommendations: recommendations.slice(0, top_n || 6),
-            method_used: "hybrid-ml-ai",
-            ml_prediction: mlPrediction,
-            ai_count: aiResponse.data.count,
+          const productIds = predictedProducts.map((p) => p.product_id);
+          const placeholders = productIds.map(() => "?").join(",");
+
+          const productQuery = `
+            SELECT 
+              product_id,
+              name,
+              category_id,
+              price,
+              image_url,
+              description
+            FROM products
+            WHERE product_id IN (${placeholders})
+            AND is_active = 1
+          `;
+
+          db.query(productQuery, productIds, (err3, productResults) => {
+            if (err3) {
+              console.error("❌ DB error:", err3);
+              return res.status(500).json({
+                success: false,
+                message: "Database error",
+              });
+            }
+
+            // ✅ BƯỚC 6: Merge ML scores với product details
+            const recommendations = productResults.map((product) => {
+              const mlData = predictedProducts.find(
+                (p) => p.product_id === product.product_id
+              );
+
+              return {
+                product_id: product.product_id,
+                name: product.name,
+                category_id: product.category_id,
+                price: product.price,
+                image_url: product.image_url,
+                description: product.description,
+                ml_score: mlData ? mlData.score : 0,
+                confidence: mlData ? mlData.confidence : 0,
+              };
+            });
+
+            return res.json({
+              success: true,
+              recommendations: recommendations,
+              method: "sagemaker-ml",
+              order_id: order_id,
+              context: {
+                user_id: order.user_id,
+                store_id: order.store_id,
+                weather: {
+                  temperature: order.temperature,
+                  condition: order.weather_condition,
+                  humidity: order.humidity,
+                },
+                hour: hour,
+              },
+            });
+          });
+        } catch (sagemakerError) {
+          console.error("❌ SageMaker API Error:", sagemakerError.message);
+
+          if (
+            sagemakerError.code === "ECONNREFUSED" ||
+            sagemakerError.code === "ETIMEDOUT"
+          ) {
+            return res.status(503).json({
+              success: false,
+              message: "SageMaker API unavailable",
+              error: sagemakerError.message,
+            });
+          }
+
+          return res.status(500).json({
+            success: false,
+            message: "ML service error",
+            error: sagemakerError.message,
           });
         }
-      );
-    } else {
-      return res.json({
-        success: true,
-        recommendations: recommendations,
-        method_used: aiResponse.data.method_used,
-        ml_prediction: mlPrediction,
       });
-    }
+    });
   } catch (error) {
-    console.error("❌ Hybrid recommendation error:", error.message);
+    console.error("❌ Unexpected error:", error.message);
     return res.status(500).json({
       success: false,
-      message: "Recommendation service error",
+      message: "Internal server error",
       error: error.message,
     });
   }
 };
 
-module.exports = { getMLRecommendations, getHybridRecommendations };
-
+module.exports = { getMLRecommendations };

@@ -1,12 +1,11 @@
-// src/routes/mlRecommendationRoutes.js
 const express = require("express");
 const router = express.Router();
 const {
   getMLRecommendations,
-  getHybridRecommendations,
 } = require("../controllers/mlRecommendationController");
 
+// POST /api/ml-recommendations
+// Body: { order_id, top_n }
 router.post("/", getMLRecommendations);
-router.post("/hybrid", getHybridRecommendations); // ← THÊM
 
 module.exports = router;
