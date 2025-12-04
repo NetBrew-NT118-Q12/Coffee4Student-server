@@ -82,14 +82,50 @@ const getMLRecommendations = async (req, res) => {
               weather_condition: order.weather_condition || "Sunny",
               hour: parseInt(hour),
             },
-            { timeout: 10000 }
+            {
+              timeout: 10000,
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
           );
 
-          const mlProduct = sagemakerResponse.data.predicted_product_id;
-          const mlScore = sagemakerResponse.data.ml_score || 0.95;
-          const mlConfidence = sagemakerResponse.data.confidence || 0.92;
+          // ✅ 🔥 QUAN TRỌNG: Parse body nếu API Gateway trả về string
+          let sagemakerData = sagemakerResponse.data;
+
+          console.log(
+            "📦 Raw SageMaker response:",
+            JSON.stringify(sagemakerData, null, 2)
+          );
+
+          // Nếu có statusCode và body string → parse body
+          if (
+            sagemakerData.statusCode &&
+            typeof sagemakerData.body === "string"
+          ) {
+            console.log("🔄 Parsing API Gateway body...");
+            sagemakerData = JSON.parse(sagemakerData.body);
+          }
+
+          console.log(
+            "📦 Parsed SageMaker data:",
+            JSON.stringify(sagemakerData, null, 2)
+          );
+
+          // Kiểm tra success
+          if (!sagemakerData.success) {
+            throw new Error("SageMaker returned success: false");
+          }
+
+          const mlProduct = sagemakerData.predicted_product_id;
+          const mlScore = sagemakerData.ml_score || 0.95;
+          const mlConfidence = sagemakerData.confidence || 0.92;
 
           console.log(`✅ SageMaker predicted: Product ${mlProduct}`);
+
+          if (!mlProduct) {
+            throw new Error("SageMaker did not return a product_id");
+          }
 
           // ✅ BƯỚC 3B: Gọi Python Hybrid AI (5 sản phẩm)
           console.log("📞 Calling Python Hybrid AI...");
@@ -164,11 +200,18 @@ const getMLRecommendations = async (req, res) => {
                 method: "sagemaker-ml", // ← Đánh dấu
                 reason: "AI dự đoán phù hợp nhất",
               });
+
+              console.log(`✅ Added ML product: ${mlProductDetail.name}`);
+            } else {
+              console.warn(`⚠️ ML product ${mlProduct} not found in DB`);
             }
 
             // 5B: Thêm hybrid products (loại bỏ nếu trùng với ML)
             for (let hybridItem of hybridProducts) {
               if (hybridItem.product_id === mlProduct) {
+                console.log(
+                  `⏭️ Skipping duplicate product ${hybridItem.product_id}`
+                );
                 continue; // Skip nếu trùng
               }
 
@@ -193,6 +236,8 @@ const getMLRecommendations = async (req, res) => {
               }
             }
 
+            console.log(`📊 Total recommendations: ${recommendations.length}`);
+
             // ✅ BƯỚC 6: Giới hạn top_n
             const finalRecommendations = recommendations.slice(0, top_n || 6);
 
@@ -202,6 +247,7 @@ const getMLRecommendations = async (req, res) => {
               method: "ml-hybrid",
               order_id: order_id,
               ml_product_id: mlProduct,
+              hybrid_count: hybridProducts.length,
               context: {
                 user_id: order.user_id,
                 store_id: order.store_id,
@@ -215,6 +261,15 @@ const getMLRecommendations = async (req, res) => {
           });
         } catch (apiError) {
           console.error("❌ API Error:", apiError.message);
+
+          // Log chi tiết lỗi
+          if (apiError.response) {
+            console.error("❌ Response status:", apiError.response.status);
+            console.error(
+              "❌ Response data:",
+              JSON.stringify(apiError.response.data, null, 2)
+            );
+          }
 
           // Fallback về hybrid only nếu SageMaker fail
           if (
