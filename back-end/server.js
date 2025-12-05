@@ -25,6 +25,7 @@ const storeRoutes = require("./src/routes/storeRoutes");
 const popularProductRoutes = require("./src/routes/popularProductRoutes");
 const recommendationRoutes = require("./src/routes/recommendationRoutes"); 
 const mlRecommendationRoutes = require("./src/routes/mlRecommendationRoutes"); 
+const feedbackRoutes = require("./src/routes/feedbackRoutes");
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -42,6 +43,7 @@ app.use("/api/stores", storeRoutes);
 app.use("/api/popular-products", popularProductRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/ml-recommendations", mlRecommendationRoutes); 
+app.use("/api/feedbacks", feedbackRoutes); 
 
 const PORT = 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
