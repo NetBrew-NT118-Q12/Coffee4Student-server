@@ -48,18 +48,22 @@ const Feedback = {
 
   getUnreviewedOrders: (user_id, callback) => {
     const sql = `
-      SELECT 
-        order_id,
-        store_name,
-        total_price,
-        created_at,
-        status
-      FROM orders
-      WHERE user_id = ? 
-        AND status = 'completed' 
-        AND reviewed = 0
-      ORDER BY created_at DESC
-    `;
+    SELECT 
+      o.order_id,
+      o.user_id,
+      o.store_id,
+      s.store_name,          -- ✅ Lấy từ bảng stores
+      o.total_price,
+      o.created_at,
+      o.status,
+      o.delivery_type
+    FROM orders o
+    INNER JOIN stores s ON o.store_id = s.store_id  -- ✅ JOIN với stores
+    WHERE o.user_id = ? 
+      AND o.status = 'completed' 
+      AND o.reviewed = 0
+    ORDER BY o.created_at DESC
+  `;
     db.query(sql, [user_id], callback);
   },
 };
