@@ -51,11 +51,19 @@ const getMLRecommendations = async (req, res) => {
       const order = orderResults[0];
       const hour = new Date(order.created_at).getHours();
 
-      // ✅ BƯỚC 2: Lấy context product từ order
+      // ✅ BƯỚC 2: Lấy SẢN PHẨM ĐẦU TIÊN trong order (làm context)
       const itemsQuery = `
-        SELECT product_id
-        FROM orderitems
-        WHERE order_id = ?
+        SELECT 
+          oi.product_id,
+          p.category_id,
+          pa.has_caffeine,
+          pa.has_milk,
+          pa.drink_type,
+          pa.temperature
+        FROM orderitems oi
+        JOIN products p ON oi.product_id = p.product_id
+        LEFT JOIN product_attributes pa ON p.product_id = pa.product_id
+        WHERE oi.order_id = ?
         LIMIT 1
       `;
 
@@ -67,21 +75,37 @@ const getMLRecommendations = async (req, res) => {
           });
         }
 
-        const contextProductId = itemResults[0].product_id;
+        const contextProduct = itemResults[0];
+
+        // ✅ BƯỚC 3: Chuẩn bị payload CHO SAGEMAKER
+        const sagemakerPayload = {
+          user_id: parseInt(order.user_id),
+          store_id: parseInt(order.store_id),
+          weather_temp: parseFloat(order.temperature) || 28,
+          weather_condition: order.weather_condition || "Sunny",
+          hour: parseInt(hour),
+
+          // ✅ THÊM: Product context
+          product_id: contextProduct.product_id,
+          category_id: contextProduct.category_id || 3,
+          has_caffeine: contextProduct.has_caffeine || 1,
+          has_milk: contextProduct.has_milk || 1,
+          drink_type: contextProduct.drink_type || "coffee",
+          temperature: contextProduct.temperature || "cold",
+        };
+
+        console.log(
+          "📤 SageMaker payload:",
+          JSON.stringify(sagemakerPayload, null, 2)
+        );
 
         try {
-          // ✅ BƯỚC 3A: Gọi SageMaker (1 sản phẩm ML)
+          // ✅ BƯỚC 4A: Gọi SageMaker với PRODUCT CONTEXT
           console.log("📞 Calling SageMaker...");
 
           const sagemakerResponse = await axios.post(
             SAGEMAKER_API_URL,
-            {
-              user_id: parseInt(order.user_id),
-              store_id: parseInt(order.store_id),
-              weather_temp: parseFloat(order.temperature) || 28,
-              weather_condition: order.weather_condition || "Sunny",
-              hour: parseInt(hour),
-            },
+            sagemakerPayload,
             {
               timeout: 10000,
               headers: {
@@ -90,7 +114,7 @@ const getMLRecommendations = async (req, res) => {
             }
           );
 
-          // ✅ 🔥 QUAN TRỌNG: Parse body nếu API Gateway trả về string
+          // ✅ Parse body nếu API Gateway trả về string
           let sagemakerData = sagemakerResponse.data;
 
           console.log(
@@ -127,15 +151,15 @@ const getMLRecommendations = async (req, res) => {
             throw new Error("SageMaker did not return a product_id");
           }
 
-          // ✅ BƯỚC 3B: Gọi Python Hybrid AI (5 sản phẩm)
+          // ✅ BƯỚC 4B: Gọi Python Hybrid AI (5 sản phẩm)
           console.log("📞 Calling Python Hybrid AI...");
 
           const aiResponse = await axios.post(
             `${AI_API_URL}/api/recommendations`,
             {
               user_id: parseInt(order.user_id),
-              product_id: contextProductId,
-              top_n: 5, // ← Chỉ lấy 5
+              product_id: contextProduct.product_id,
+              top_n: 5,
             },
             { timeout: 10000 }
           );
@@ -146,13 +170,12 @@ const getMLRecommendations = async (req, res) => {
             `✅ Hybrid AI returned ${hybridProducts.length} products`
           );
 
-          // ✅ BƯỚC 4: Lấy product details từ DB
+          // ✅ BƯỚC 5: Lấy product details từ DB
           const allProductIds = [
             mlProduct,
             ...hybridProducts.map((p) => p.product_id),
           ];
 
-          // Loại bỏ duplicate
           const uniqueProductIds = [...new Set(allProductIds)];
 
           const placeholders = uniqueProductIds.map(() => "?").join(",");
@@ -179,10 +202,10 @@ const getMLRecommendations = async (req, res) => {
               });
             }
 
-            // ✅ BƯỚC 5: Build recommendations list
+            // ✅ BƯỚC 6: Build recommendations list
             const recommendations = [];
 
-            // 5A: Thêm ML product ở đầu
+            // 6A: Thêm ML product ở đầu
             const mlProductDetail = productResults.find(
               (p) => p.product_id === mlProduct
             );
@@ -197,7 +220,7 @@ const getMLRecommendations = async (req, res) => {
                 description: mlProductDetail.description,
                 ml_score: mlScore,
                 confidence: mlConfidence,
-                method: "sagemaker-ml", // ← Đánh dấu
+                method: "sagemaker-ml",
                 reason: "AI dự đoán phù hợp nhất",
               });
 
@@ -206,13 +229,13 @@ const getMLRecommendations = async (req, res) => {
               console.warn(`⚠️ ML product ${mlProduct} not found in DB`);
             }
 
-            // 5B: Thêm hybrid products (loại bỏ nếu trùng với ML)
+            // 6B: Thêm hybrid products (loại bỏ nếu trùng với ML)
             for (let hybridItem of hybridProducts) {
               if (hybridItem.product_id === mlProduct) {
                 console.log(
                   `⏭️ Skipping duplicate product ${hybridItem.product_id}`
                 );
-                continue; // Skip nếu trùng
+                continue;
               }
 
               const detail = productResults.find(
@@ -230,7 +253,7 @@ const getMLRecommendations = async (req, res) => {
                   final_score: hybridItem.final_score,
                   content_score: hybridItem.content_score,
                   collab_score: hybridItem.collab_score,
-                  method: "hybrid-ai", // ← Đánh dấu
+                  method: "hybrid-ai",
                   reason: "Kết hợp sở thích & người khác cũng thích",
                 });
               }
@@ -238,7 +261,7 @@ const getMLRecommendations = async (req, res) => {
 
             console.log(`📊 Total recommendations: ${recommendations.length}`);
 
-            // ✅ BƯỚC 6: Giới hạn top_n
+            // ✅ BƯỚC 7: Giới hạn top_n
             const finalRecommendations = recommendations.slice(0, top_n || 6);
 
             return res.json({
@@ -251,6 +274,7 @@ const getMLRecommendations = async (req, res) => {
               context: {
                 user_id: order.user_id,
                 store_id: order.store_id,
+                context_product_id: contextProduct.product_id,
                 weather: {
                   temperature: order.temperature,
                   condition: order.weather_condition,
@@ -262,7 +286,6 @@ const getMLRecommendations = async (req, res) => {
         } catch (apiError) {
           console.error("❌ API Error:", apiError.message);
 
-          // Log chi tiết lỗi
           if (apiError.response) {
             console.error("❌ Response status:", apiError.response.status);
             console.error(
@@ -283,7 +306,7 @@ const getMLRecommendations = async (req, res) => {
                 `${AI_API_URL}/api/recommendations`,
                 {
                   user_id: parseInt(order.user_id),
-                  product_id: contextProductId,
+                  product_id: contextProduct.product_id,
                   top_n: top_n || 6,
                 },
                 { timeout: 10000 }
