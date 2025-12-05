@@ -31,6 +31,7 @@ const getMLRecommendations = async (req, res) => {
         o.user_id,
         o.store_id,
         o.created_at,
+        o.delivery_type,
         ow.temperature,
         ow.weather_condition,
         ow.humidity
@@ -90,6 +91,7 @@ const getMLRecommendations = async (req, res) => {
           category_id: contextProduct.category_id || 3,
           has_caffeine: contextProduct.has_caffeine || 1,
           has_milk: contextProduct.has_milk || 1,
+          delivery_type: order.delivery_type || "delivery",
           drink_type: contextProduct.drink_type || "coffee",
           temperature: contextProduct.temperature || "cold",
         };
