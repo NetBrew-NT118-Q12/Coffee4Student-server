@@ -2,8 +2,42 @@ const axios = require("axios");
 const Order = require("../models/orderModel");
 const OrderItem = require("../models/orderItemModel");
 
+
 const N8N_WEBHOOK_URL =
   process.env.N8N_WEBHOOK_URL || "http://localhost:5678/webhook/order-created";
+
+
+const getOrderDetails = (req, res) => {
+  const orderId = req.params.id;
+
+  Order.getById(orderId, (err, orderData) => {
+    if (err) {
+      return res.status(500).json({ message: "Lỗi lấy order", error: err });
+    }
+
+    if (!orderData.length) {
+      return res.status(404).json({ message: "Order không tồn tại" });
+    }
+
+    const order = orderData[0];
+
+    // Lấy danh sách items
+    OrderItem.getByOrderId(orderId, (errItems, items) => {
+      if (errItems) {
+        return res
+          .status(500)
+          .json({ message: "Lỗi lấy order items", error: errItems });
+      }
+
+      res.status(200).json({
+        ...order,
+        items,
+      });
+    });
+  });
+};
+
+
 
 // ✅ Hàm tạo đơn hàng
 const createOrder = (req, res) => {
@@ -142,5 +176,9 @@ const cancelOrder = (req, res) => {
   });
 };
 
-// ✅ EXPORT CẢ 2 HÀM
-module.exports = { createOrder, cancelOrder };
+module.exports = {
+  createOrder,
+  cancelOrder,
+  getOrderDetails,
+};
+

@@ -30,6 +30,27 @@ const OrderItem = {
       callback(null, results);
     });
   },
+  getByOrderId: (order_id, callback) => {
+    const sql = `
+    SELECT 
+      oi.order_item_id,
+      oi.product_id,
+      oi.quantity,
+      oi.unit_price,
+      oi.subtotal,
+      oi.variant_selection,
+      oi.note,
+      p.name,
+      p.price,
+      p.image_url,
+      p.category_id
+    FROM orderitems oi
+    JOIN products p ON oi.product_id = p.product_id
+    WHERE oi.order_id = ?
+  `;
+
+    db.query(sql, [order_id], callback);
+  },
 };
 
 module.exports = OrderItem;

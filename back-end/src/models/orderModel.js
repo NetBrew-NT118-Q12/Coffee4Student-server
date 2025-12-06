@@ -39,6 +39,10 @@ const Order = {
       callback(null, result);
     });
   },
+  getById: (orderId, callback) => {
+    const sql = `SELECT * FROM orders WHERE order_id = ?`;
+    db.query(sql, [orderId], callback);
+  },
 };
 
 module.exports = Order;
