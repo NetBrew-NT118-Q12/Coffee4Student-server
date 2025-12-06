@@ -1,4 +1,4 @@
-// models/feedbackModel.js - ENHANCED VERSION
+// back-end/src/models/feedbackModel.js - FIXED VERSION
 const db = require("../config/db");
 
 const Feedback = {
@@ -29,7 +29,7 @@ const Feedback = {
     db.query(sql, [order_id], callback);
   },
 
-  // ✅ ENHANCED: Lấy lịch sử review với thông tin sản phẩm
+  // ✅ FIXED: Chỉ giữ 1 hàm getByUserId (có JOIN đầy đủ)
   getByUserId: (user_id, callback) => {
     const sql = `
       SELECT 
@@ -41,31 +41,20 @@ const Feedback = {
         s.store_name,
         o.total_price,
         o.created_at as order_date,
-        -- Thêm thông tin các sản phẩm trong đơn
-        (
-          SELECT JSON_ARRAYAGG(
-            JSON_OBJECT(
-              'product_id', oi.product_id,
-              'product_name', p.name,
-              'quantity', oi.quantity,
-              'unit_price', oi.unit_price,
-              'image_url', p.image_url
-            )
-          )
-          FROM orderitems oi
-          JOIN products p ON oi.product_id = p.product_id
-          WHERE oi.order_id = f.order_id
-        ) as products
+        COUNT(DISTINCT oi.product_id) as product_count
       FROM feedbacks f
       INNER JOIN orders o ON f.order_id = o.order_id
       INNER JOIN stores s ON o.store_id = s.store_id
+      LEFT JOIN orderitems oi ON o.order_id = oi.order_id
       WHERE f.user_id = ?
+      GROUP BY f.feedback_id, f.order_id, f.star, f.content, 
+               f.created_at, s.store_name, o.total_price, o.created_at
       ORDER BY f.created_at DESC
     `;
     db.query(sql, [user_id], callback);
   },
 
-  // ✅ ENHANCED: Lấy đơn hàng chưa review với thông tin sản phẩm
+  // ✅ FIXED: Parse products thành JSON đúng cách
   getUnreviewedOrders: (user_id, callback) => {
     const sql = `
       SELECT 
@@ -77,9 +66,7 @@ const Feedback = {
         o.created_at,
         o.status,
         o.delivery_type,
-        -- Đếm số sản phẩm
         COUNT(DISTINCT oi.product_id) as product_count,
-        -- Lấy danh sách sản phẩm (dùng GROUP_CONCAT để gom thành chuỗi)
         GROUP_CONCAT(
           CONCAT_WS('|', 
             oi.product_id,
@@ -138,7 +125,7 @@ const Feedback = {
           });
         }
 
-        // Xóa products_data và trả về products array
+        // ✅ Xóa products_data và trả về products array
         delete order.products_data;
         order.products = products;
 
@@ -147,31 +134,6 @@ const Feedback = {
 
       callback(null, parsedResults);
     });
-  },
-
-  // ✅ SỬA: Lấy lịch sử review với JOIN
-  getByUserId: (user_id, callback) => {
-    const sql = `
-      SELECT 
-        f.feedback_id,
-        f.order_id,
-        f.star,
-        f.content,
-        f.created_at,
-        s.store_name,
-        o.total_price,
-        o.created_at as order_date,
-        COUNT(DISTINCT oi.product_id) as product_count
-      FROM feedbacks f
-      INNER JOIN orders o ON f.order_id = o.order_id
-      INNER JOIN stores s ON o.store_id = s.store_id
-      LEFT JOIN orderitems oi ON o.order_id = oi.order_id
-      WHERE f.user_id = ?
-      GROUP BY f.feedback_id, f.order_id, f.star, f.content, 
-               f.created_at, s.store_name, o.total_price, o.created_at
-      ORDER BY f.created_at DESC
-    `;
-    db.query(sql, [user_id], callback);
   },
 };
 
