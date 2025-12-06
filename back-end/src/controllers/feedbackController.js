@@ -99,7 +99,7 @@ exports.getReviewHistory = (req, res) => {
   });
 };
 
-// ✅ FIX: Đơn hàng chưa đánh giá
+// back-end/src/controllers/feedbackController.js
 exports.getUnreviewedOrders = (req, res) => {
   const user_id = parseInt(req.params.user_id);
 
@@ -119,10 +119,11 @@ exports.getUnreviewedOrders = (req, res) => {
       });
     }
 
+    // ✅ Data đã được parse trong model, trả về trực tiếp
     res.json({
       success: true,
       count: results.length,
-      orders: results,
+      orders: results
     });
   });
 };
