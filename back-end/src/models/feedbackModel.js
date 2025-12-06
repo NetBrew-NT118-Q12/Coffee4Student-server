@@ -1,4 +1,4 @@
-// models/feedbackModel.js - FIXED VERSION
+// models/feedbackModel.js - ENHANCED VERSION
 const db = require("../config/db");
 
 const Feedback = {
@@ -29,7 +29,7 @@ const Feedback = {
     db.query(sql, [order_id], callback);
   },
 
-  // ✅ FIX: Sửa query lịch sử review
+  // ✅ ENHANCED: Lấy lịch sử review với thông tin sản phẩm
   getByUserId: (user_id, callback) => {
     const sql = `
       SELECT 
@@ -39,7 +39,23 @@ const Feedback = {
         f.content,
         f.created_at,
         s.store_name,
-        o.total_price
+        o.total_price,
+        o.created_at as order_date,
+        -- Thêm thông tin các sản phẩm trong đơn
+        (
+          SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+              'product_id', oi.product_id,
+              'product_name', p.name,
+              'quantity', oi.quantity,
+              'unit_price', oi.unit_price,
+              'image_url', p.image_url
+            )
+          )
+          FROM orderitems oi
+          JOIN products p ON oi.product_id = p.product_id
+          WHERE oi.order_id = f.order_id
+        ) as products
       FROM feedbacks f
       INNER JOIN orders o ON f.order_id = o.order_id
       INNER JOIN stores s ON o.store_id = s.store_id
@@ -49,7 +65,7 @@ const Feedback = {
     db.query(sql, [user_id], callback);
   },
 
-  // ✅ FIX: Sửa query đơn hàng chưa review
+  // ✅ ENHANCED: Lấy đơn hàng chưa review với thông tin sản phẩm
   getUnreviewedOrders: (user_id, callback) => {
     const sql = `
       SELECT 
@@ -60,7 +76,25 @@ const Feedback = {
         o.total_price,
         o.created_at,
         o.status,
-        o.delivery_type
+        o.delivery_type,
+        -- Thêm danh sách sản phẩm
+        (
+          SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+              'product_id', oi.product_id,
+              'product_name', p.name,
+              'quantity', oi.quantity,
+              'unit_price', oi.unit_price,
+              'subtotal', oi.subtotal,
+              'image_url', p.image_url,
+              'variant_selection', oi.variant_selection,
+              'note', oi.note
+            )
+          )
+          FROM orderitems oi
+          JOIN products p ON oi.product_id = p.product_id
+          WHERE oi.order_id = o.order_id
+        ) as products
       FROM orders o
       INNER JOIN stores s ON o.store_id = s.store_id
       WHERE o.user_id = ? 
