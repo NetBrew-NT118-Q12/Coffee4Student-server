@@ -191,45 +191,45 @@ class HybridRecommender:
         self.db.disconnect()
 
 
-# ===============================================
-# TEST SCRIPT
-# ===============================================
-if __name__ == "__main__":
-    print("=" * 70)
-    print("🧪 TEST HYBRID RECOMMENDER")
-    print("=" * 70)
+# # ===============================================
+# # TEST SCRIPT
+# # ===============================================
+# if __name__ == "__main__":
+#     print("=" * 70)
+#     print(" TEST HYBRID RECOMMENDER")
+#     print("=" * 70)
     
-    recommender = HybridRecommender()
+#     recommender = HybridRecommender()
     
-    # Test với user_id=8, product_id=13
-    test_user_id = 8
-    test_product_id = 13
+#     # Test với user_id=8, product_id=13
+#     test_user_id = 8
+#     test_product_id = 13
     
-    print(f"\n📌 Gợi ý cho User {test_user_id} với Product {test_product_id}")
+#     print(f"\n Gợi ý cho User {test_user_id} với Product {test_product_id}")
     
-    result = recommender.get_recommendations(
-        user_id=test_user_id,
-        product_id=test_product_id,
-        top_n=6
-    )
+#     result = recommender.get_recommendations(
+#         user_id=test_user_id,
+#         product_id=test_product_id,
+#         top_n=6
+#     )
     
-    print(f"\n✅ Kết quả:")
-    print(f"   Phương pháp: {result['method_used'].upper()}")
-    print(f"   Số đơn của user: {result['user_order_count']}")
-    if 'filtered_count' in result:
-        print(f"   Đã lọc: {result['filtered_count']} sản phẩm đã mua gần đây")
+#     print(f"\n Kết quả:")
+#     print(f"   Phương pháp: {result['method_used'].upper()}")
+#     print(f"   Số đơn của user: {result['user_order_count']}")
+#     if 'filtered_count' in result:
+#         print(f"   Đã lọc: {result['filtered_count']} sản phẩm đã mua gần đây")
     
-    print(f"\n🎯 Top {len(result['recommendations'])} gợi ý:")
-    print("-" * 70)
+#     print(f"\n Top {len(result['recommendations'])} gợi ý:")
+#     print("-" * 70)
     
-    for i, item in enumerate(result['recommendations'], 1):
-        print(f"{i}. {item['name']}")
-        if 'content_score' in item and 'collab_score' in item:
-            print(f"   Final: {item['final_score']:.3f} | "
-                  f"Content: {item['content_score']:.3f} | "
-                  f"Collab: {item['collab_score']:.3f}")
-        else:
-            print(f"   Score: {item.get('final_score', 0):.3f}")
+#     for i, item in enumerate(result['recommendations'], 1):
+#         print(f"{i}. {item['name']}")
+#         if 'content_score' in item and 'collab_score' in item:
+#             print(f"   Final: {item['final_score']:.3f} | "
+#                   f"Content: {item['content_score']:.3f} | "
+#                   f"Collab: {item['collab_score']:.3f}")
+#         else:
+#             print(f"   Score: {item.get('final_score', 0):.3f}")
     
-    recommender.close()
-    print("\n" + "=" * 70)
+#     recommender.close()
+#     print("\n" + "=" * 70)
