@@ -153,7 +153,7 @@ const AppHeader: React.FC = () => {
             <ThemeToggleButton />
             <NotificationDropdown />
           </div> */}
-          {/* ↑ ẨN CẢ GROUP NÀY */}
+        
           <UserDropdown />
         </div>
       </div>
