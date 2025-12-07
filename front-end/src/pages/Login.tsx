@@ -100,7 +100,7 @@ const Login: React.FC = () => {
                   htmlFor="password"
                   className={`absolute left-6 transition-all duration-150 pointer-events-none select-none ${
                     isPasswordActive
-                      ? "top-2 text-xs font-medium text-[#7a3e20] -translate-y-0"
+                      ? "top-2 text-xs font-medium text-[#7a3e20] translate-y-0"
                       : "top-1/2 text-base text-gray-500 -translate-y-1/2"
                   }`}
                 >

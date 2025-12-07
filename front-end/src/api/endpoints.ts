@@ -17,7 +17,8 @@ export const API_ENDPOINTS = {
   // Auth
   LOGIN: "/auth/login",
   LOGOUT: "/auth/logout",
-  REFRESH: "/auth/refresh",
+  SOCIAL_LOGIN: "/auth/social-login",
+  SIGNUP: "/auth/logout",
 
   // Dashboard
   DASHBOARD_STATS: "/dashboard/stats",
