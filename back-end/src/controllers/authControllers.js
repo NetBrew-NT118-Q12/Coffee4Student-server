@@ -55,7 +55,14 @@ exports.signup = (req, res) => {
         }
 
         console.log("✅ Thêm user thành công:", result.insertId);
-        res.status(200).json({ success: true, message: "Đăng ký thành công" });
+
+        User.assignVouchersToUser(result.insertId, (err2, rs) => {
+            if (err2) {
+                console.error("Lỗi gán voucher:", err2);
+                // Vẫn cho đăng ký thành công, không chặn user
+            }
+            res.status(200).json({ success: true, message: "Đăng ký thành công" });
+        });
       }
     );
   });
@@ -133,6 +140,29 @@ exports.login = (req, res) => {
   }
 };
 
+exports.updateToken = (req, res) => {
+    const { user_id, fcm_token } = req.body;
+
+    if (!user_id || !fcm_token) {
+        return res.status(400).send({ message: "Missing params" });
+    }
+
+    // Gọi hàm Model và truyền vào 1 function làm callback
+    User.updateFcmToken(user_id, fcm_token, (err, data) => {
+        if (err) {
+            // Xử lý lỗi Database
+            return res.status(500).send({
+                message: "Error updating token."
+            });
+        }
+        
+        // Thành công
+        res.status(200).send({
+             message: "Token registered successfully via Callback!" 
+        });
+    });
+};
+
 // Xử lý đăng nhập xã hội (GOOGLE/FACEBOOK) (HÀM MỚI)
 exports.socialLogin = async (req, res) => {
   const { idToken } = req.body;
@@ -199,10 +229,12 @@ exports.socialLogin = async (req, res) => {
             }
 
             // Trả về user đã được link
-            return res.status(200).json({
-              success: true,
-              message: "Đăng nhập và liên kết tài khoản thành công",
-              user: formatUserResponse(existingUser),
+            User.assignVouchersToUser(existingUser.user_id, () => {
+                return res.status(200).json({
+                    success: true,
+                    message: "Đăng nhập và liên kết tài khoản thành công",
+                    user: formatUserResponse(existingUser),
+                });
             });
           });
         }
@@ -230,10 +262,13 @@ exports.socialLogin = async (req, res) => {
                     .status(500)
                     .json({ success: false, message: "Lỗi lấy user vừa tạo" });
                 }
-                return res.status(200).json({
-                  success: true,
-                  message: "Đăng ký xã hội thành công",
-                  user: formatUserResponse(newUser),
+                // Gán voucher cho user mới
+                User.assignVouchersToUser(createResult.insertId, () => {
+                    return res.status(200).json({
+                        success: true,
+                        message: "Đăng ký xã hội thành công",
+                        user: formatUserResponse(newUser),
+                    });
                 });
               });
             }

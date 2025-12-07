@@ -8,4 +8,6 @@ router.post("/login", authControllers.login);
 // ROUTE MỚI ĐỂ XỬ LÝ GOOGLE/FACEBOOK
 router.post("/social-login", authControllers.socialLogin);
 
+router.post('/update-token', authControllers.updateToken);
+
 module.exports = router;
