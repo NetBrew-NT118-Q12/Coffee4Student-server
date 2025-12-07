@@ -1,10 +1,9 @@
-// controllers/feedbackController.js - FIXED VERSION
+// controllers/feedbackController.js - UPDATED VERSION
 const Feedback = require("../models/feedbackModel");
 
 exports.createFeedback = (req, res) => {
   const { order_id, user_id, product_id, star, content } = req.body;
 
-  // ✅ Validate đầy đủ
   if (!order_id || !user_id || !star) {
     return res.status(400).json({
       success: false,
@@ -19,7 +18,6 @@ exports.createFeedback = (req, res) => {
     });
   }
 
-  // ✅ Kiểm tra đã review chưa
   Feedback.checkIfReviewed(order_id, (err, isReviewed) => {
     if (err) {
       console.error("❌ DB Error:", err);
@@ -44,7 +42,6 @@ exports.createFeedback = (req, res) => {
       content: content ? content.trim() : "",
     };
 
-    // ✅ Tạo feedback
     Feedback.create(data, (err, result) => {
       if (err) {
         console.error("❌ Create Feedback Error:", err);
@@ -55,7 +52,6 @@ exports.createFeedback = (req, res) => {
         });
       }
 
-      // ✅ Đánh dấu đã review
       Feedback.markOrderAsReviewed(order_id, (markErr) => {
         if (markErr) {
           console.error("⚠️ Mark Error:", markErr);
@@ -71,7 +67,7 @@ exports.createFeedback = (req, res) => {
   });
 };
 
-// ✅ FIX: Lịch sử đánh giá
+// ✅ UPDATED: Lấy lịch sử đánh giá với products
 exports.getReviewHistory = (req, res) => {
   const user_id = parseInt(req.params.user_id);
 
@@ -82,7 +78,8 @@ exports.getReviewHistory = (req, res) => {
     });
   }
 
-  Feedback.getByUserId(user_id, (err, results) => {
+  // ✅ Sử dụng query mới có products
+  Feedback.getReviewHistoryWithProducts(user_id, (err, results) => {
     if (err) {
       console.error("❌ Get Review History Error:", err);
       return res.status(500).json({
@@ -99,7 +96,6 @@ exports.getReviewHistory = (req, res) => {
   });
 };
 
-// back-end/src/controllers/feedbackController.js
 exports.getUnreviewedOrders = (req, res) => {
   const user_id = parseInt(req.params.user_id);
 
@@ -119,11 +115,10 @@ exports.getUnreviewedOrders = (req, res) => {
       });
     }
 
-    // ✅ Data đã được parse trong model, trả về trực tiếp
     res.json({
       success: true,
       count: results.length,
-      orders: results
+      orders: results,
     });
   });
 };
