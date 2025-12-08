@@ -23,17 +23,17 @@ class Database:
                 database=self.database
             )
             if self.connection.is_connected():
-                print("✅ Kết nối MySQL thành công")
+                print("Kết nối MySQL thành công")
                 return True
         except Error as e:
-            print(f"❌ Lỗi kết nối: {e}")
+            print(f" Lỗi kết nối: {e}")
             return False
     
     def disconnect(self):
         """Ngắt kết nối"""
         if self.connection and self.connection.is_connected():
             self.connection.close()
-            print("🔌 Đã ngắt kết nối MySQL")
+            print(" Đã ngắt kết nối MySQL")
     
     def execute_query(self, query, params=None):
         """Thực thi câu lệnh SQL"""
@@ -53,16 +53,16 @@ class Database:
             return cursor.rowcount
         
         except Error as e:
-            print(f"❌ Lỗi query: {e}")
+            print(f" Lỗi query: {e}")
             return None
         finally:
             cursor.close()
 
-# Test kết nối (chạy file này để test)
-if __name__ == "__main__":
-    db = Database()
-    if db.connect():
-        # Test query
-        result = db.execute_query("SELECT COUNT(*) as total FROM products")
-        print(f"📊 Tổng số sản phẩm: {result[0]['total']}")
-        db.disconnect()
+# # Test kết nối (chạy file này để test)
+# if __name__ == "__main__":
+#     db = Database()
+#     if db.connect():
+#         # Test query
+#         result = db.execute_query("SELECT COUNT(*) as total FROM products")
+#         print(f" Tổng số sản phẩm: {result[0]['total']}")
+#         db.disconnect()

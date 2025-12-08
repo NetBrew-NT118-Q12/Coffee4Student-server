@@ -163,6 +163,46 @@ cancel: (orderId, callback) => {
         });
     });
 },
+
+getById: (orderId, callback) => {
+    const sql = `SELECT * FROM orders WHERE order_id = ?`;
+    db.query(sql, [orderId], callback);
+},
+
+// ✅ Thêm hàm này vào trong object Order
+getAll: (callback) => {
+  const query = `
+    SELECT 
+      order_id, 
+      user_id, 
+      store_id, 
+      total_price, 
+      status, 
+      reviewed, 
+      created_at, 
+      updated_at, 
+      delivery_type, 
+      vc_user_id, 
+      discount_amount, 
+      completed_at
+    FROM orders
+    ORDER BY created_at DESC
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) return callback(err, null);
+
+    // Format lại thời gian cho đẹp
+    const formattedResults = results.map((order) => ({
+      ...order,
+      created_at: formatTime(order.created_at),
+      updated_at: formatTime(order.updated_at),
+      completed_at: formatTime(order.completed_at),
+    }));
+
+    callback(null, formattedResults);
+  });
+},
 };
 
 module.exports = Order;

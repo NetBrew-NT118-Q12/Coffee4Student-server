@@ -1,6 +1,4 @@
-"""
-Content-Based Filtering: Tính toán sản phẩm tương tự dựa trên đặc tính
-"""
+
 import numpy as np
 from database import Database
 
@@ -51,27 +49,27 @@ class ContentBasedRecommender:
         """
         score = 0.0
         
-        # 1. So sánh drink_type (coffee, tea, chocolate, food)
+        #  So sánh drink_type (coffee, tea, chocolate, food)
         if product_a['drink_type'] == product_b['drink_type']:
             score += self.weights['drink_type']
         
-        # 2. So sánh category_type (latte, espresso, matcha, ...)
+        #  So sánh category_type (latte, espresso, matcha, ...)
         if product_a['category_type'] == product_b['category_type']:
             score += self.weights['category_type']
         
-        # 3. So sánh temperature (hot, cold, room)
+        #  So sánh temperature (hot, cold, room)
         if product_a['temperature'] == product_b['temperature']:
             score += self.weights['temperature']
         
-        # 4. So sánh has_milk (boolean)
+        #  So sánh has_milk (boolean)
         if product_a['has_milk'] == product_b['has_milk']:
             score += self.weights['has_milk']
         
-        # 5. So sánh has_caffeine (boolean)
+        #  So sánh has_caffeine (boolean)
         if product_a['has_caffeine'] == product_b['has_caffeine']:
             score += self.weights['has_caffeine']
-        
-        # 6. So sánh flavor_notes (text similarity)
+    
+        #  So sánh flavor_notes (text similarity)
         flavor_sim = self._calculate_flavor_similarity(
             product_a['flavor_notes'], 
             product_b['flavor_notes']
@@ -115,7 +113,7 @@ class ContentBasedRecommender:
         # Lấy sản phẩm gốc
         current_product = self.get_product_attributes(product_id)
         if not current_product:
-            print(f"❌ Không tìm thấy product_id={product_id}")
+            print(f"Không tìm thấy product_id={product_id}")
             return []
         
         # Lấy tất cả sản phẩm khác
@@ -146,37 +144,37 @@ class ContentBasedRecommender:
         self.db.disconnect()
 
 
-# ===============================================
-# TEST SCRIPT
-# ===============================================
-if __name__ == "__main__":
-    print("=" * 60)
-    print("🧪 TEST CONTENT-BASED FILTERING")
-    print("=" * 60)
+# # ===============================================
+# # TEST SCRIPT
+# # ===============================================
+# if __name__ == "__main__":
+#     print("=" * 60)
+#     print(" TEST CONTENT-BASED FILTERING")
+#     print("=" * 60)
     
-    recommender = ContentBasedRecommender()
+#     recommender = ContentBasedRecommender()
     
-    # Test với Latte Classic (product_id=13)
-    test_product_id = 13
-    print(f"\n📌 Tìm sản phẩm tương tự với: product_id={test_product_id}")
+#     # Test với Latte Classic (product_id=13)
+#     test_product_id = 13
+#     print(f"\n Tìm sản phẩm tương tự với: product_id={test_product_id}")
     
-    # Lấy thông tin sản phẩm gốc
-    product = recommender.get_product_attributes(test_product_id)
-    if product:
-        print(f"   Tên: {product['name']}")
-        print(f"   Loại: {product['drink_type']} - {product['category_type']}")
-        print(f"   Nhiệt độ: {product['temperature']}")
-        print(f"   Có sữa: {product['has_milk']}")
-        print(f"   Flavor: {product['flavor_notes']}")
+#     # Lấy thông tin sản phẩm gốc
+#     product = recommender.get_product_attributes(test_product_id)
+#     if product:
+#         print(f"   Tên: {product['name']}")
+#         print(f"   Loại: {product['drink_type']} - {product['category_type']}")
+#         print(f"   Nhiệt độ: {product['temperature']}")
+#         print(f"   Có sữa: {product['has_milk']}")
+#         print(f"   Flavor: {product['flavor_notes']}")
     
-    # Tìm top 5 tương tự
-    similar = recommender.get_similar_products(test_product_id, top_n=5)
+#     # Tìm top 5 tương tự
+#     similar = recommender.get_similar_products(test_product_id, top_n=5)
     
-    print(f"\n✅ Top 5 sản phẩm tương tự:")
-    print("-" * 60)
-    for i, item in enumerate(similar, 1):
-        print(f"{i}. {item['name']}")
-        print(f"   Score: {item['similarity_score']:.3f} | Type: {item['drink_type']} - {item['category_type']}")
+#     print(f"\n Top 5 sản phẩm tương tự:")
+#     print("-" * 60)
+#     for i, item in enumerate(similar, 1):
+#         print(f"{i}. {item['name']}")
+#         print(f"   Score: {item['similarity_score']:.3f} | Type: {item['drink_type']} - {item['category_type']}")
     
-    recommender.close()
-    print("\n" + "=" * 60)
+#     recommender.close()
+#     print("\n" + "=" * 60)

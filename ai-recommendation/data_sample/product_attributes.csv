@@ -1,0 +1,14 @@
+id,order_id,temperature,weather_condition,humidity,recorded_at
+attribute_id,product_id,drink_type,category_type,temperature,sweetness_level,bitterness_level,has_milk,has_caffeine,has_ice,flavor_notes,created_at,updated_at
+1,1,coffee,espresso,hot,none,strong,0,1,0,"bold, intense, roasted","2025-11-30 14:48:38","2025-11-30 14:48:38"
+2,2,coffee,espresso,cold,none,strong,0,1,1,"bold, intense, roasted","2025-11-30 14:48:38","2025-11-30 14:48:38"
+3,3,coffee,cappuccino,cold,low,medium,1,1,1,"creamy, milky, smooth","2025-11-30 14:48:38","2025-11-30 14:48:38"
+4,4,coffee,cappuccino,hot,low,medium,1,1,0,"creamy, milky, smooth","2025-11-30 14:48:38","2025-11-30 14:48:38"
+5,5,coffee,latte,cold,medium,light,1,1,1,"caramel, sweet, creamy","2025-11-30 14:48:38","2025-11-30 14:48:38"
+6,6,coffee,latte,hot,medium,light,1,1,0,"caramel, sweet, creamy","2025-11-30 14:48:38","2025-11-30 14:48:38"
+7,7,coffee,americano,cold,none,medium,0,1,1,"clean, smooth, refreshing","2025-11-30 14:48:57","2025-11-30 14:48:57"
+8,8,coffee,americano,cold,low,medium,0,1,1,"fruity, peach, refreshing","2025-11-30 14:48:57","2025-11-30 14:48:57"
+9,9,coffee,americano,cold,low,medium,0,1,1,"fruity, apricot, refreshing","2025-11-30 14:48:57","2025-11-30 14:48:57"
+10,10,coffee,americano,cold,low,medium,0,1,1,"fruity, sour, refreshing","2025-11-30 14:48:57","2025-11-30 14:48:57"
+11,11,coffee,americano,hot,none,medium,0,1,0,"clean, smooth, bold","2025-11-30 14:48:57","2025-11-30 14:48:57"
+12,12,coffee,latte,cold,medium,light,1,1,1,"nutty, almond, creamy","2025-11-30 14:49:40","2025-11-30 14:49:40"

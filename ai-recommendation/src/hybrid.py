@@ -12,9 +12,8 @@ class HybridRecommender:
         self.db = Database()
         self.db.connect()
         
-        # Trọng số cho 2 phương pháp
-        self.content_weight = 0.6  # 60%
-        self.collab_weight = 0.4   # 40%
+        self.content_weight = 0.6  
+        self.collab_weight = 0.4  
     
     def get_user_order_count(self, user_id):
         """Đếm số đơn hàng hoàn thành của user"""
@@ -54,37 +53,37 @@ class HybridRecommender:
                 'user_order_count': int
             }
         """
-        # 1. Kiểm tra user có đủ lịch sử không
+        #  Kiểm tra user có đủ lịch sử không
         order_count = self.get_user_order_count(user_id)
-        print(f"📊 User {user_id} có {order_count} đơn hàng")
+        print(f" User {user_id} có {order_count} đơn hàng")
         
         # Nếu user mới (<3 đơn), fallback về popularity
         if order_count < 3:
-            print("⚠️  User mới, fallback về sản phẩm phổ biến")
+            print("  User mới, fallback về sản phẩm phổ biến")
             return {
                 'recommendations': self._get_popular_products(top_n),
                 'method_used': 'popular',
                 'user_order_count': order_count
             }
         
-        # 2. Lấy gợi ý từ Content-Based
-        print("\n🔍 Chạy Content-Based...")
+        #  Lấy gợi ý từ Content-Based
+        print("\n Chạy Content-Based...")
         content_results = self.content_based.get_similar_products(
             product_id, 
             top_n=top_n
         )
         
-        # 3. Lấy gợi ý từ Collaborative
-        print("🔍 Chạy Collaborative...")
+        # Lấy gợi ý từ Collaborative
+        print(" Chạy Collaborative...")
         collab_results = self.collaborative.get_recommendations(
             product_id, 
             top_n=top_n
         )
         
-        # 4. Merge kết quả
+        #  Merge kết quả
         merged = self._merge_results(content_results, collab_results)
         
-        # 5. Lọc bỏ sản phẩm user đã order gần đây
+        #  Lọc bỏ sản phẩm user đã order gần đây
         recent_products = self.get_user_recent_orders(user_id, days=7)
         filtered = [
             item for item in merged 
@@ -192,45 +191,45 @@ class HybridRecommender:
         self.db.disconnect()
 
 
-# ===============================================
-# TEST SCRIPT
-# ===============================================
-if __name__ == "__main__":
-    print("=" * 70)
-    print("🧪 TEST HYBRID RECOMMENDER")
-    print("=" * 70)
+# # ===============================================
+# # TEST SCRIPT
+# # ===============================================
+# if __name__ == "__main__":
+#     print("=" * 70)
+#     print(" TEST HYBRID RECOMMENDER")
+#     print("=" * 70)
     
-    recommender = HybridRecommender()
+#     recommender = HybridRecommender()
     
-    # Test với user_id=8, product_id=13
-    test_user_id = 8
-    test_product_id = 13
+#     # Test với user_id=8, product_id=13
+#     test_user_id = 8
+#     test_product_id = 13
     
-    print(f"\n📌 Gợi ý cho User {test_user_id} với Product {test_product_id}")
+#     print(f"\n Gợi ý cho User {test_user_id} với Product {test_product_id}")
     
-    result = recommender.get_recommendations(
-        user_id=test_user_id,
-        product_id=test_product_id,
-        top_n=6
-    )
+#     result = recommender.get_recommendations(
+#         user_id=test_user_id,
+#         product_id=test_product_id,
+#         top_n=6
+#     )
     
-    print(f"\n✅ Kết quả:")
-    print(f"   Phương pháp: {result['method_used'].upper()}")
-    print(f"   Số đơn của user: {result['user_order_count']}")
-    if 'filtered_count' in result:
-        print(f"   Đã lọc: {result['filtered_count']} sản phẩm đã mua gần đây")
+#     print(f"\n Kết quả:")
+#     print(f"   Phương pháp: {result['method_used'].upper()}")
+#     print(f"   Số đơn của user: {result['user_order_count']}")
+#     if 'filtered_count' in result:
+#         print(f"   Đã lọc: {result['filtered_count']} sản phẩm đã mua gần đây")
     
-    print(f"\n🎯 Top {len(result['recommendations'])} gợi ý:")
-    print("-" * 70)
+#     print(f"\n Top {len(result['recommendations'])} gợi ý:")
+#     print("-" * 70)
     
-    for i, item in enumerate(result['recommendations'], 1):
-        print(f"{i}. {item['name']}")
-        if 'content_score' in item and 'collab_score' in item:
-            print(f"   Final: {item['final_score']:.3f} | "
-                  f"Content: {item['content_score']:.3f} | "
-                  f"Collab: {item['collab_score']:.3f}")
-        else:
-            print(f"   Score: {item.get('final_score', 0):.3f}")
+#     for i, item in enumerate(result['recommendations'], 1):
+#         print(f"{i}. {item['name']}")
+#         if 'content_score' in item and 'collab_score' in item:
+#             print(f"   Final: {item['final_score']:.3f} | "
+#                   f"Content: {item['content_score']:.3f} | "
+#                   f"Collab: {item['collab_score']:.3f}")
+#         else:
+#             print(f"   Score: {item.get('final_score', 0):.3f}")
     
-    recommender.close()
-    print("\n" + "=" * 70)
+#     recommender.close()
+#     print("\n" + "=" * 70)

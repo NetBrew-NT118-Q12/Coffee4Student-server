@@ -1,3 +1,4 @@
+const axios = require("axios");
 const Order = require("../models/orderModel");
 const OrderItem = require("../models/orderItemModel");
 const Voucher = require("../models/voucherModel");
@@ -89,6 +90,44 @@ const updateStatusAndNotify = (orderId, userId, newStatus, title, body) => {
   });
 };
 
+
+const N8N_WEBHOOK_URL =
+  process.env.N8N_WEBHOOK_URL || "http://localhost:5678/webhook/order-created";
+
+
+const getOrderDetails = (req, res) => {
+  const orderId = req.params.id;
+
+  Order.getById(orderId, (err, orderData) => {
+    if (err) {
+      return res.status(500).json({ message: "Lỗi lấy order", error: err });
+    }
+
+    if (!orderData.length) {
+      return res.status(404).json({ message: "Order không tồn tại" });
+    }
+
+    const order = orderData[0];
+
+    // Lấy danh sách items
+    OrderItem.getByOrderId(orderId, (errItems, items) => {
+      if (errItems) {
+        return res
+          .status(500)
+          .json({ message: "Lỗi lấy order items", error: errItems });
+      }
+
+      res.status(200).json({
+        ...order,
+        items,
+      });
+    });
+  });
+};
+
+
+
+// ✅ Hàm tạo đơn hàng
 const createOrder = (req, res) => {
   const { items } = req.body;
 
@@ -100,7 +139,6 @@ const createOrder = (req, res) => {
   const total_price = items.reduce((sum, i) => sum + Number(i.subtotal || 0), 0) - discount_amount;
 
 
-  // Tạo Order trước
   Order.create(
     {
       user_id,
@@ -122,7 +160,7 @@ const createOrder = (req, res) => {
       const { order_id, created_at } = orderData;
 
       // Sau đó insert danh sách OrderItem
-      OrderItem.bulkInsert(order_id, items, (err2) => {
+      OrderItem.bulkInsert(order_id, items, async (err2) => {
         if (err2) {
           const db = require("../config/db");
           db.query("DELETE FROM orders WHERE order_id = ?", [order_id], (rollbackErr) => {
@@ -144,6 +182,26 @@ const createOrder = (req, res) => {
                   console.error("Warning: Failed to mark voucher as used", vErr);
               }
           });
+        }
+
+        // ✅ Gửi webhook cho n8n
+        try {
+          await axios.post(
+            N8N_WEBHOOK_URL,
+            {
+              order_id: order_id,
+              user_id,
+              store_id,
+              total_price,
+              created_at,
+              status: "completed", // ← Gửi status mới
+            },
+            { timeout: 25000 }
+          );
+
+          console.log(`✅ n8n webhook triggered for order ${orderId}`);
+        } catch (webhookError) {
+          console.error("⚠️ n8n webhook error:", webhookError.message);
         }
 
         // Thành công
@@ -221,7 +279,10 @@ const cancelOrder = (req, res) => {
   const orderId = req.params.id;
 
   if (!orderId) {
-    return res.status(400).json({ success: false, message: "Order ID is required" });
+    return res.status(400).json({
+      success: false,
+      message: "Missing order_id",
+    });
   }
 
   Order.cancel(orderId, (err, result) => {
@@ -247,4 +308,17 @@ const cancelOrder = (req, res) => {
   });
 };
 
-module.exports = { createOrder, cancelOrder, getOrdersByUserId };
+const getAllOrders = (req, res) => {
+  Order.getAll((err, orders) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch all orders",
+        error: err.message,
+      });
+    }
+    res.status(200).json(orders);
+  });
+};
+
+module.exports = { createOrder, cancelOrder, getOrdersByUserId, getOrderDetails, getAllOrders };

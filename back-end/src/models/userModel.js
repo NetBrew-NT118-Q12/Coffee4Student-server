@@ -18,7 +18,6 @@ module.exports = {
         });
     },
 
-    // 2. Hàm lấy Token theo User ID
     getFcmTokenByUserId: function(userId, resultCallback) {
         const query = 'SELECT fcm_token FROM users WHERE user_id = ?';
 
@@ -39,7 +38,6 @@ module.exports = {
         });
     },
 
-    // 3. Tạo user mới (với mật khẩu đã băm)
     createUser: (email, phone, full_name, hashedPassword, image_url, callback) => {
       const sql = `
         INSERT INTO users (email, phone, full_name, password, image_url, created_at, updated_at)
@@ -49,19 +47,16 @@ module.exports = {
       db.query(sql, [email, phone, full_name, hashedPassword, image_url], callback);
     },
 
-    // 4. Tìm user theo email
     findUserByEmail: (email, callback) => {
       const sql = "SELECT * FROM users WHERE email = ?";
       db.query(sql, [email], callback);
     },
 
-    // 5. Tìm người dùng theo số điện thoại
     findUserByPhone: (phone, callback) => {
       const sql = "SELECT * FROM users WHERE phone = ?";
       db.query(sql, [phone], callback);
     },
 
-    // 6. Tìm user theo ID
     getUserById: (id, callback) => {
       const sql = "SELECT * FROM users WHERE user_id = ?";
       db.query(sql, [id], (err, results) => {
@@ -70,7 +65,6 @@ module.exports = {
       });
     },
 
-    // 7. Cập nhật avatar cho user
     updateAvatar: (userId, avatarUrl, callback) => {
       const sql = "UPDATE users SET image_url = ? WHERE user_id = ?";
       db.query(sql, [avatarUrl, userId], (err, result) => {
@@ -79,7 +73,7 @@ module.exports = {
       });
     },
 
-    // 8. Cập nhật thông tin user
+
     updateUser: (id, data, callback) => {
       const { full_name, phone, email, dob, gender } = data;
       const sql = `
@@ -93,7 +87,6 @@ module.exports = {
       });
     },
 
-    // 9. Xóa tài khoản user
     deleteUser: (id, callback) => {
       const sql = "DELETE FROM users WHERE user_id = ?";
       db.query(sql, [id], (err, result) => {
@@ -102,24 +95,17 @@ module.exports = {
       });
     },
 
-    // ============================================
-    // CÁC HÀM CHO SOCIAL LOGIN
-    // ============================================
-
-    // 10. Tìm user theo Firebase UID
     findUserByFirebaseUid: (uid, callback) => {
       const sql = "SELECT * FROM users WHERE firebase_uid = ?";
       db.query(sql, [uid], callback);
     },
 
-    // 11. Gắn Firebase UID cho user đã có (qua email)
     linkFirebaseUidToEmail: (email, uid, callback) => {
       const sql =
         "UPDATE users SET firebase_uid = ?, updated_at = NOW() WHERE email = ?";
       db.query(sql, [uid, email], callback);
     },
 
-    // 12. Tạo user mới từ Social (không có SĐT, password là NULL)
     createSocialUser: (uid, email, full_name, image_url, callback) => {
       const sql = `
         INSERT INTO users (firebase_uid, email, full_name, image_url, password, created_at, updated_at)
@@ -146,5 +132,24 @@ module.exports = {
 
             db.query(insertSql, [values], callback);
         });
-    }
+    },
+
+    getAllUsers: (callback) => {
+        const sql = `
+            SELECT 
+                user_id, 
+                full_name, 
+                email, 
+                phone, 
+                date_of_birth, 
+                gender, 
+                image_url, 
+                created_at, 
+                updated_at, 
+                firebase_uid 
+            FROM users 
+            ORDER BY created_at DESC
+        `;
+        db.query(sql, callback);
+    },
 };

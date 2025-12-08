@@ -81,16 +81,16 @@ class CollaborativeRecommender:
         Returns:
             List[dict]: [{product_id, name, score, reason}, ...]
         """
-        # 1. Tìm user đã mua sản phẩm này
+        #  Tìm user đã mua sản phẩm này
         similar_users = self.get_users_who_bought(product_id)
         
         if not similar_users:
-            print(f"⚠️  Chưa có user nào mua product_id={product_id}")
+            print(f"  Chưa có user nào mua product_id={product_id}")
             return []
         
-        print(f"📊 Tìm thấy {len(similar_users)} user đã mua sản phẩm này")
+        print(f" Tìm thấy {len(similar_users)} user đã mua sản phẩm này")
         
-        # 2. Lấy sản phẩm khác mà họ đã mua
+        #  Lấy sản phẩm khác mà họ đã mua
         products = self.get_products_bought_by_users(
             similar_users, 
             exclude_product_id=product_id
@@ -99,7 +99,7 @@ class CollaborativeRecommender:
         if not products:
             return []
         
-        # 3. Tính điểm (dựa trên tần suất mua)
+        #  Tính điểm (dựa trên tần suất mua)
         max_count = products[0]['purchase_count'] if products else 1
         
         recommendations = []
@@ -123,30 +123,30 @@ class CollaborativeRecommender:
         self.db.disconnect()
 
 
-# ===============================================
-# TEST SCRIPT
-# ===============================================
-if __name__ == "__main__":
-    print("=" * 60)
-    print("🧪 TEST COLLABORATIVE FILTERING")
-    print("=" * 60)
+# # ===============================================
+# # TEST SCRIPT
+# # ===============================================
+# if __name__ == "__main__":
+#     print("=" * 60)
+#     print(" TEST COLLABORATIVE FILTERING")
+#     print("=" * 60)
     
-    recommender = CollaborativeRecommender()
+#     recommender = CollaborativeRecommender()
     
-    # Test với Latte Classic (product_id=13)
-    test_product_id = 13
-    print(f"\n📌 Tìm 'Người khác cũng mua' cho: product_id={test_product_id}")
+#     # Test với Latte Classic (product_id=13)
+#     test_product_id = 13
+#     print(f"\n Tìm 'Người khác cũng mua' cho: product_id={test_product_id}")
     
-    recommendations = recommender.get_recommendations(test_product_id, top_n=5)
+#     recommendations = recommender.get_recommendations(test_product_id, top_n=5)
     
-    if recommendations:
-        print(f"\n✅ Top 5 sản phẩm 'Người khác cũng mua':")
-        print("-" * 60)
-        for i, item in enumerate(recommendations, 1):
-            print(f"{i}. {item['name']}")
-            print(f"   Score: {item['collaborative_score']:.3f} | {item['reason']}")
-    else:
-        print("\n⚠️  Chưa có dữ liệu đủ để gợi ý")
+#     if recommendations:
+#         print(f"\n Top 5 sản phẩm 'Người khác cũng mua':")
+#         print("-" * 60)
+#         for i, item in enumerate(recommendations, 1):
+#             print(f"{i}. {item['name']}")
+#             print(f"   Score: {item['collaborative_score']:.3f} | {item['reason']}")
+#     else:
+#         print("\n  Chưa có dữ liệu đủ để gợi ý")
     
-    recommender.close()
-    print("\n" + "=" * 60)
+#     recommender.close()
+#     print("\n" + "=" * 60)
