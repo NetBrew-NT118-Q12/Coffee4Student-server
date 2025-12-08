@@ -199,7 +199,7 @@ const createOrder = (req, res) => {
             { timeout: 25000 }
           );
 
-          console.log(`✅ n8n webhook triggered for order ${orderId}`);
+          console.log(`✅ n8n webhook triggered for order ${order_id}`);
         } catch (webhookError) {
           console.error("⚠️ n8n webhook error:", webhookError.message);
         }
