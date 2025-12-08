@@ -5,9 +5,13 @@
 - Step 1: Clone the repository.
 
 ```bash
-git clone https://github.com/nguyendwctrung/NetBrew-Web-Admin.git
-cd NetBrew
+git clone https://github.com/NetBrew-NT118-Q12/Coffee4Student-server.git
+cd frontend
 ```
+
+- Step 2: Create environment variables.
+
+Create .env file where your API_URL will be placed. 
 
 - Step 2: Install dependencies
 
@@ -28,12 +32,16 @@ This command tells npm to ignore peer dependency conflicts and often allows the 
 ```bash
 npm run dev
 ```
+The application will running on http://localhost:5173/admin/
 
 - Step 4: Build for production
 
 ```bash
 npm run build
 ```
+After running this command, the folder dist will be created, commit this folder to dev branch, you will be able to access web at http://14.225.206.136/admin
+
+If there is any change, you need to rebuild the app and commit again.
 
 - Step 5: Enjoy the app!
 
