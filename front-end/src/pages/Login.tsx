@@ -7,6 +7,7 @@ const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, SetError] = useState<string | null>(null);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const bgUrl = `${
@@ -17,8 +18,13 @@ const Login: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // TODO: call auth service
-      navigate("/");
+      if (username == "admin" && password == "password") {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        navigate("/");
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        SetError("Invalid username or password");
+      }
     } catch (err) {
       console.error(err);
     } finally {
