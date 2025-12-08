@@ -57,7 +57,7 @@ jobs:
             curl -f http://127.0.0.1:5001/health || exit 1
 
             # ===== DEPLOY BACKEND (PM2) =====
-            echo "🚀 Deploying Backend..."
+            echo " Deploying Backend..."
             cd ../back-end
             npm install
             pm2 restart server || pm2 start server.js --name server

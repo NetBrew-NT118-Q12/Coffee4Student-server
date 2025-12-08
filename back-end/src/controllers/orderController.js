@@ -99,7 +99,7 @@ const createOrder = (req, res) => {
           return;
         }
 
-        // ✅ Gửi webhook cho n8n
+        //  Gửi webhook cho n8n
         try {
           await axios.post(
             N8N_WEBHOOK_URL,
@@ -110,14 +110,14 @@ const createOrder = (req, res) => {
               total_price,
               created_at,
               created_time,
-              status: "completed", // ← Gửi status mới
+              status: "completed", 
             },
             { timeout: 5000 }
           );
 
-          console.log(`✅ n8n webhook triggered for order ${orderId}`);
+          console.log(` n8n webhook triggered for order ${orderId}`);
         } catch (webhookError) {
-          console.error("⚠️ n8n webhook error:", webhookError.message);
+          console.error(" n8n webhook error:", webhookError.message);
         }
 
         // Trả về client
