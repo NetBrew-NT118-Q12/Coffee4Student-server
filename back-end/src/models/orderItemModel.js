@@ -30,27 +30,43 @@ const OrderItem = {
       callback(null, results);
     });
   },
-  getByOrderId: (order_id, callback) => {
-    const sql = `
-    SELECT 
-      oi.order_item_id,
-      oi.product_id,
-      oi.quantity,
-      oi.unit_price,
-      oi.subtotal,
-      oi.variant_selection,
-      oi.note,
-      p.name,
-      p.price,
-      p.image_url,
-      p.category_id
-    FROM orderitems oi
-    JOIN products p ON oi.product_id = p.product_id
-    WHERE oi.order_id = ?
-  `;
 
-    db.query(sql, [order_id], callback);
-  },
+  // Lấy tất cả item của một user cụ thể
+  getByUserId: (userId, callback) => {
+    const sql = `
+      SELECT 
+        oi.order_item_id,
+        oi.order_id,
+        oi.product_id,
+        p.name as product_name,
+        oi.quantity,
+        oi.unit_price,
+        oi.subtotal,
+        oi.variant_selection,
+        oi.note
+      FROM orderitems oi
+      JOIN orders o ON oi.order_id = o.order_id
+      LEFT JOIN products p ON oi.product_id = p.product_id
+      WHERE o.user_id = ?
+    `;
+
+    db.query(sql, [userId], (err, results) => {
+      if (err) {
+        console.error("Error fetching order items by user:", err);
+        return callback(err, null);
+      }
+      
+      // Parse JSON variant_selection nếu cần (mysql driver có thể tự làm, nhưng an toàn thì check)
+      const parsedResults = results.map(item => ({
+         ...item,
+         variant_selection: (typeof item.variant_selection === 'string') 
+            ? JSON.parse(item.variant_selection) 
+            : item.variant_selection
+      }));
+
+      callback(null, parsedResults);
+    });
+  }
 };
 
 module.exports = OrderItem;
