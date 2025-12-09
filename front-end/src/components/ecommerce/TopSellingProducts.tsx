@@ -7,31 +7,31 @@ import { formatCurrency } from "../../utils/formatters/currency";
 import { formatCompactNumber } from "../../utils/formatters/number";
 
 export default function TopSellingProducts() {
-  const { products, loading, error, refetch } = useTopProducts({ limit: 5 });
+  const {
+    data: products = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useTopProducts(5);
 
   const [isOpen, setIsOpen] = useState(false);
 
-  function toggleDropdown() {
-    setIsOpen(!isOpen);
-  }
-
-  function closeDropdown() {
-    setIsOpen(false);
-  }
+  const toggleDropdown = () => setIsOpen(!isOpen);
+  const closeDropdown = () => setIsOpen(false);
 
   let content;
 
-  if (loading) {
+  if (isLoading) {
     content = (
       <div className="flex flex-col items-center justify-center py-12">
         <div className="inline-block w-8 h-8 border-4 border-gray-300 border-t-[#452302] rounded-full animate-spin"></div>
         <p className="mt-2 text-gray-500 dark:text-gray-400">Đang tải...</p>
       </div>
     );
-  } else if (error) {
+  } else if (isError) {
     content = (
       <div className="text-center py-12 text-red-500 dark:text-red-400">
-        {error}
+        {isError}
       </div>
     );
   } else if (products.length === 0) {
@@ -65,7 +65,7 @@ export default function TopSellingProducts() {
                 {product.name}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Doanh thu: {formatCurrency(product.revenue)}
+                {formatCurrency(product.price)}
               </p>
             </div>
 

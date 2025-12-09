@@ -33,7 +33,7 @@ This command tells npm to ignore peer dependency conflicts and often allows the 
 npm run dev
 ```
 
-The application will running on http://localhost:5173/admin/
+The application will run on http://localhost:5173/admin/
 
 - Step 4: Build for production
 
