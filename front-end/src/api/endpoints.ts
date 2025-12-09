@@ -2,6 +2,7 @@ export const API_ENDPOINTS = {
   // Products
   PRODUCTS: "/products",
   PRODUCT_BY_ID: (id: string) => `/products/${id}`,
+  POPULAR_PRODUCTS: "/popular-products",
 
   // Categories
   CATEGORIES: "/categories",
